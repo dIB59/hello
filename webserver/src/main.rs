@@ -12,6 +12,7 @@ use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 extern crate diesel;
 
+mod auth;
 mod chat;
 mod config;
 mod database;
@@ -23,7 +24,7 @@ mod services;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
     dotenv().ok();
 
     let database_url = Config::from_env().database_url;
