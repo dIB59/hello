@@ -1,5 +1,5 @@
 use crate::{db::DbPool, services::user_service};
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -29,4 +29,9 @@ pub async fn register(
             HttpResponse::InternalServerError().json("Error creating new User")
         }
     }
+}
+
+#[get("/me")]
+pub async fn me() -> impl Responder {
+    HttpResponse::Ok().json("me")
 }
