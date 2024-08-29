@@ -45,6 +45,4 @@ jobs:
         run: cd webserver && docker compose up -d
 
       - name: Run Tests
-        with: # Set the secret as an input
-          super_secret: ${{ secrets.SuperSecret }}
         run: cd webserver && cargo test --verbose
