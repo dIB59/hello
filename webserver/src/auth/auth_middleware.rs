@@ -6,13 +6,11 @@ use std::{
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     error::{self},
-    Error, HttpMessage, HttpResponse,
+    Error, HttpMessage,
 };
 use serde_json::json;
 
-use crate::services::user_service;
-
-use super::jwt_auth_service::{self, Claims};
+use super::jwt_auth_service::{self};
 
 // Auth middleware
 pub struct Auth;

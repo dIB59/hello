@@ -8,13 +8,6 @@ pub struct Claims {
     pub exp: usize,
 }
 
-pub fn me() -> Claims {
-    Claims {
-        sub: "me".to_owned(),
-        exp: 0,
-    }
-}
-
 pub fn create_jwt(user_id: &str) -> String {
     let expiration = chrono::Utc::now()
         .checked_add_signed(chrono::Duration::days(1))
