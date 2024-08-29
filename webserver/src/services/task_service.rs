@@ -13,7 +13,6 @@ pub async fn create_task(
         reward,
         completed: false,
     };
-
     let some = diesel::insert_into(tasks::table)
         .values(&new_task)
         .returning(Task::as_returning())
