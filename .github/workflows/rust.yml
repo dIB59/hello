@@ -46,5 +46,5 @@ jobs:
 
       - name: Run Tests
         with:
-          secret: ${{ secrets.JWT_SECRET  }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: cd webserver && cargo test --verbose
