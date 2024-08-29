@@ -45,4 +45,6 @@ jobs:
         run: cd webserver && docker compose up -d
 
       - name: Run Tests
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: cd webserver && cargo test --verbose
