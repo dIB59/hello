@@ -7,7 +7,7 @@ import Button from './button'
 type Card={
   cardType:string,
   rate:number,
-  benefits?:[string,string,string,string] | [string,string,string],
+  benefits:string[],
   link:string,
 }
 

@@ -23,8 +23,8 @@ const welcome = () => {
         />
         <div className="flex flex-col gap-4 text-justify text-[16px] py-3 font-body">
           <span>
-            At FlowerWork, we're transforming the way you manage your projects.
-            Whether you're a regular person looking for work for a quick
+            At FlowerWork, we arere transforming the way you manage your projects.
+            Whether you are a regular person looking for work for a quick
             project, a content creator, or a social media influencer who needs
             regular contract work, our platform is tailored to support your
             unique needs.
