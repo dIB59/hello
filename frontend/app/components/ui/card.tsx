@@ -3,7 +3,6 @@ import React from 'react'
 import Link from 'next/link'
 import Button from './button'
 
-
 type Card={
   cardType:string,
   rate:number,
