@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
+import { ListItem, Navbar, NavBarProps } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import {
   Menubar,
@@ -19,12 +19,32 @@ import {
   NavigationMenuLink,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { list } from "postcss";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FlowerWork",
   description: "A place where you can finsih your work",
+};
+
+let navbarlist: ListItem[] = [
+  {
+    title: "Home",
+    link: "/",
+  },
+  {
+    title: "About",
+    link: "/about",
+  },
+  {
+    title: "Contact",
+    link: "/contact",
+  },
+];
+
+let props = {
+  list: navbarlist,
 };
 
 export default function RootLayout({
@@ -35,7 +55,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar list={["Sp,e"]} />
+        <Navbar list={navbarlist} />
 
         {children}
       </body>
