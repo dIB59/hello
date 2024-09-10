@@ -26,21 +26,24 @@ export type NavBarProps = {
 export const Navbar: React.FC<NavBarProps> = ({ list }) => {
   return (
     <header className="p-3 m-2 bg-secondary rounded-xl">
-      <NavigationMenu className="max-w-full">
-        <NavigationMenuList>
-          <NavigationMenuItem className="">
-            <Image
-              src="vercel.svg"
-              alt="Company Logo"
-              className="logo-img"
-              width={"80"}
-              height={"20"}
-            />
-          </NavigationMenuItem>
+      
+      <NavigationMenu className="flex justify-between items-center max-w-full">
+   
+        <NavigationMenuItem className="">
+          <Image
+            src="/logo.png"
+            alt="Company Logo"
+            className="logo-img"
+            width={"60"}
+            height={"40"}
+          />
+        </NavigationMenuItem>
+
+        <NavigationMenuList className="flex space-x-4">
           {list.map((item, index) => (
             <NavigationMenuItem key={index}>
-              <Link href={item.link} legacyBehavior passHref className="">
-                <NavigationMenuLink className="text-white bg-secondary rounded-2xl p-2 border px-8 justify-items-end">
+              <Link href={item.link} legacyBehavior passHref>
+                <NavigationMenuLink className="text-white bg-secondary rounded-2xl p-4 border px-8">
                   {item.icon && <UserIcon />}
                   {item.title}
                 </NavigationMenuLink>
