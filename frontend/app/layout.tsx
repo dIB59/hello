@@ -2,24 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ListItem, Navbar, NavBarProps } from "@/components/layout/Navbar";
-import { Button } from "@/components/ui/button";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { list } from "postcss";
+import { UserIcon } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,16 +13,13 @@ export const metadata: Metadata = {
 
 let navbarlist: ListItem[] = [
   {
-    title: "Home",
-    link: "/",
+    title: "Login",
+    link: "/login",
+    icon: <UserIcon />,
   },
   {
-    title: "About",
-    link: "/about",
-  },
-  {
-    title: "Contact",
-    link: "/contact",
+    title: "Sign up",
+    link: "/signup",
   },
 ];
 
