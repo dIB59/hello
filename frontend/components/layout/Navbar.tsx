@@ -7,6 +7,8 @@ import {
   NavigationMenuList,
 } from "../ui/navigation-menu";
 import { NavigationMenuTrigger } from "@radix-ui/react-navigation-menu";
+import { Button } from "../ui/button";
+import { FileX } from "lucide-react";
 
 type NavbarProps = {
   list: string[];
@@ -15,14 +17,15 @@ type NavbarProps = {
 export const Navbar: React.FC<NavbarProps> = ({ list }) => {
   return (
     <>
-      <NavigationMenu>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <NavigationMenuLink>Link</NavigationMenuLink>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-      </NavigationMenu>
+      <div className={"flex justify-end bg-sky-950 p-3 m-2" }>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <Button> Sign In</Button>
+
+            <Button> Register</Button>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
     </>
   );
 };
