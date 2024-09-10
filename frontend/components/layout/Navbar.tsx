@@ -16,16 +16,12 @@ export const Navbar: React.FC<NavbarProps> = ({ list }) => {
   return (
     <>
       <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuLink>Menu</NavigationMenuLink>
-          </NavigationMenuItem>
-          {list.map((item) => (
-            <NavigationMenuItem key={item}>
-              <NavigationMenuLink>{item}</NavigationMenuLink>
-            </NavigationMenuItem>
-          ))}
-        </NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <NavigationMenuLink>Link</NavigationMenuLink>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
       </NavigationMenu>
     </>
   );

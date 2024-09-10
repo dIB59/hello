@@ -3,6 +3,22 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +35,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar list={["Home", "About", "Contact"]} />
+        <Navbar list={["Sp,e"]} />
+
         {children}
       </body>
     </html>
