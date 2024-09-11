@@ -1,5 +1,5 @@
 use std::{
-    future::{ready, Future, Ready},
+    future::{Future, ready, Ready},
     pin::Pin,
 };
 
@@ -10,6 +10,8 @@ use actix_web::{
 };
 use serde::Serialize;
 use serde_json::json;
+
+use crate::models::user::UserSub;
 
 use super::jwt_auth_service::{self};
 
