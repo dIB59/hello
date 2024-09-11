@@ -19,7 +19,10 @@ const card = ({cardType,rate,benefits,link}:Card) => {
           <h1 className='text-3xl font-bold items-center'>${rate}</h1>
         </div>
         <ul className='list-disc px-6 '>
-            {benefits.map((benefit)=>(<li key={benefit}>{benefit}</li>))}
+          
+          {benefits?.map((benefit) => ( //Error was saying that benefits was undefined
+            <li key={benefit}>{benefit}</li> //Check if it exists before rendering it
+          ))}
         </ul>
         <Link className='underline italic text-gray-400' href={link}>Learn more about this</Link>
       </div>
