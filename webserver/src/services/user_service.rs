@@ -1,9 +1,8 @@
-use crate::auth::auth_middleware::UserSub;
-use crate::models::user::{NewUser, User};
-use crate::schema::users;
-use actix_web::FromRequest;
 use diesel::prelude::*;
 use diesel::result::Error;
+
+use crate::models::user::{NewUser, User};
+use crate::schema::users;
 
 pub async fn register_user(
     conn: &mut PgConnection,
@@ -30,10 +29,14 @@ pub(crate) fn get_user_by_id(user_id: i32, conn: &mut PgConnection) -> Result<Us
     users::table.find(user_id).first(conn)
 }
 
-pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
-    let user = users::table
+pub(crate) fn get_user_by_email(email: &str, conn: &mut PgConnection) -> Result<User, Error> {
+    users::table
         .filter(users::email.eq(email))
-        .first::<User>(conn);
+        .first(conn)
+}
+
+pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
+    let user = get_user_by_email(email, conn);
 
     match user {
         Ok(user) => {

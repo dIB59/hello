@@ -1,7 +1,8 @@
-use crate::models::task::{NewTask, Task};
-use crate::schema::tasks;
 use diesel::prelude::*;
 use diesel::result::Error;
+
+use crate::models::task::{NewTask, Task};
+use crate::schema::tasks;
 
 pub async fn create_task(
     conn: &mut PgConnection,

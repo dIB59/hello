@@ -1,14 +1,14 @@
-pub mod chat;
-pub mod chat_server;
-
 use std::{
     sync::atomic::{AtomicUsize, Ordering},
     time::Instant,
 };
 
 use actix::Addr;
-use actix_web::{web, Error, HttpRequest, HttpResponse, Responder};
+use actix_web::{Error, HttpRequest, HttpResponse, Responder, web};
 use actix_web_actors::ws;
+
+pub mod chat;
+pub mod chat_server;
 
 pub async fn get_count(count: web::Data<AtomicUsize>) -> impl Responder {
     let current_count = count.load(Ordering::SeqCst);

@@ -1,5 +1,6 @@
-use dotenv::dotenv;
 use std::env;
+
+use dotenv::dotenv;
 
 pub struct Config {
     pub database_url: String,

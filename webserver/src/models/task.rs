@@ -1,6 +1,7 @@
-use crate::schema::tasks;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+
+use crate::schema::tasks;
 
 #[derive(Queryable, Selectable, Serialize, Deserialize, Debug)]
 #[diesel(table_name = tasks)]
