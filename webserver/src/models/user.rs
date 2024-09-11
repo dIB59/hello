@@ -3,7 +3,9 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable, Serialize, Deserialize, Debug)]
+use crate::schema::users;
+
+#[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
@@ -13,6 +15,11 @@ pub struct User {
     pub email: String,
     pub created_at: NaiveDateTime,
 }
+
+//User Sub is just the email of the user.
+// In the jwt token the sub is the email
+#[derive(Debug, Clone, Serialize)]
+pub struct UserSub(pub String);
 
 #[derive(Insertable, Debug)]
 #[diesel(table_name = users)]
