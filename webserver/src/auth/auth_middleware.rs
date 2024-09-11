@@ -4,10 +4,11 @@ use std::{
 };
 
 use actix_web::{
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+    dev::{forward_ready, Payload, Service, ServiceRequest, ServiceResponse, Transform},
     error::{self},
-    Error, HttpMessage,
+    Error, FromRequest, HttpMessage, HttpRequest,
 };
+use serde::Serialize;
 use serde_json::json;
 
 use super::jwt_auth_service::{self};
@@ -63,7 +64,8 @@ where
         match claims {
             Ok(claims) => {
                 let user_id = claims.sub;
-                req.extensions_mut().insert(user_id);
+                log::info!("User ID: {}", user_id);
+                req.extensions_mut().insert::<UserSub>(UserSub(user_id));
                 let fut = self.service.call(req);
                 Box::pin(async move {
                     let res = fut.await?;
@@ -78,5 +80,22 @@ where
                 Box::pin(async move { Err(error) })
             }
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct UserSub(pub String);
+
+impl FromRequest for UserSub {
+    type Error = Error;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        let user_sub = req
+            .extensions()
+            .get::<UserSub>()
+            .expect("This should not happen")
+            .to_owned();
+        ready(Ok(user_sub))
     }
 }

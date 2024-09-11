@@ -1,5 +1,7 @@
+use crate::auth::auth_middleware::UserSub;
 use crate::models::user::{NewUser, User};
 use crate::schema::users;
+use actix_web::FromRequest;
 use diesel::prelude::*;
 use diesel::result::Error;
 
@@ -25,9 +27,7 @@ pub async fn register_user(
 }
 
 pub(crate) fn get_user_by_id(user_id: i32, conn: &mut PgConnection) -> Result<User, Error> {
-    users::table
-        .filter(users::id.eq(user_id))
-        .first::<User>(conn)
+    users::table.find(user_id).first(conn)
 }
 
 pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {

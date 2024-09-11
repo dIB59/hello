@@ -51,3 +51,7 @@ mod tests {
         assert_eq!(created_task.reward, reward);
     }
 }
+
+pub(crate) async fn get_task_by_id(conn: &mut PgConnection, task_id: i32) -> Result<Task, Error> {
+    tasks::table.find(task_id).first(conn)
+}

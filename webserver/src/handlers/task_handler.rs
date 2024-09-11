@@ -1,4 +1,4 @@
-use crate::db::DbPool;
+use crate::{auth::auth_middleware, db::DbPool};
 use actix_web::{get, post, web, HttpResponse, Responder};
 use serde::Deserialize;
 
@@ -11,7 +11,11 @@ pub struct CreateTaskRequest {
 }
 
 pub fn task_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/tasks").service(create_task));
+    cfg.service(
+        web::scope("/tasks")
+            .wrap(auth_middleware::Auth)
+            .service(create_task),
+    );
 }
 
 #[post("")]
@@ -32,5 +36,14 @@ pub async fn get_tasks(pool: web::Data<DbPool>) -> impl Responder {
     match task_service::get_tasks(&mut conn).await {
         Ok(tasks) => HttpResponse::Ok().json(tasks),
         Err(_) => HttpResponse::InternalServerError().json("Error getting tasks"),
+    }
+}
+
+#[get("/{id}")]
+pub async fn get_task_by_id(pool: web::Data<DbPool>, id: web::Path<i32>) -> impl Responder {
+    let mut conn = pool.get().expect("Failed to get DB connection.");
+    match task_service::get_task_by_id(&mut conn, id.into_inner()).await {
+        Ok(task) => HttpResponse::Ok().json(task),
+        Err(_) => HttpResponse::InternalServerError().json("Error getting task"),
     }
 }

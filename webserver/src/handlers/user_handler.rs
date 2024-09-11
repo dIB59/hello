@@ -1,6 +1,7 @@
-use crate::{db::DbPool, services::user_service};
-use actix_web::{get, post, web, HttpResponse, Responder};
+use crate::{auth::auth_middleware::UserSub, db::DbPool, services::user_service};
+use actix_web::{get, post, web, HttpMessage, HttpRequest, HttpResponse, Responder};
 use serde::Deserialize;
+use serde_json::json;
 
 #[derive(Deserialize)]
 pub struct RegisterRequest {
@@ -31,7 +32,7 @@ pub async fn register(
     }
 }
 
-#[get("/me")]
-pub async fn me() -> impl Responder {
-    HttpResponse::Ok().json("me")
+#[get("/info")]
+async fn me(user_sub: UserSub) -> impl Responder {
+    HttpResponse::Ok().json(json!({ "user_sub": user_sub}))
 }
