@@ -13,6 +13,8 @@ pub struct CreateTaskRequest {
 pub fn task_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/tasks")
+            .service(get_tasks)
+            .service(get_task_by_id)
             .wrap(auth_middleware::Auth)
             .service(create_task),
     );
