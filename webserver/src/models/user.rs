@@ -1,4 +1,3 @@
-use crate::schema::users;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -27,4 +26,23 @@ pub struct NewUser<'a> {
     pub username: &'a str,
     pub password_hash: &'a str,
     pub email: &'a str,
+}
+
+#[derive(Debug, Serialize)]
+pub struct PublicUser {
+    pub id: i32,
+    pub username: String,
+    pub email: String,
+    pub created_at: NaiveDateTime,
+}
+
+impl From<User> for PublicUser {
+    fn from(user: User) -> Self {
+        PublicUser {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            created_at: user.created_at,
+        }
+    }
 }
