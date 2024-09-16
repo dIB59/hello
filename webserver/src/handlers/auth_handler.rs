@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::{auth::jwt_auth_service::create_jwt, database::db::DbPool, services::user_service};
 use crate::handlers::auth_handler;
-use crate::models::user::PublicUser;
+use crate::models::user::UserResponse;
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
@@ -27,9 +27,11 @@ pub async fn login(
     match user_service::login(&mut conn, &credentials.email, &credentials.password).await {
         Ok(user) => {
             let bearer_token = create_jwt(&user.email);
-            let public_user: PublicUser = user.into();
+            let public_user: UserResponse = user.into();
+
+            //add bearer token to response header
             HttpResponse::Ok()
-                .append_header(("Authorization", bearer_token))
+                .append_header(("Authorization", format!("Bearer {}", bearer_token)))
                 .json(public_user)
         }
         Err(error) => {
@@ -51,10 +53,10 @@ pub async fn register(
         &credentials.password,
         &credentials.email,
     )
-    .await
+        .await
     {
         Ok(user) => {
-            let public_user: PublicUser = user.into();
+            let public_user: UserResponse = user.into();
             HttpResponse::Created().json(public_user)
         }
         Err(error) => {
@@ -65,9 +67,8 @@ pub async fn register(
 }
 
 
-
 pub fn auth_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/auth")
-        .service(login))
-        .service(register);
+        .service(login)
+        .service(register));
 }

@@ -29,16 +29,16 @@ pub struct NewUser<'a> {
 }
 
 #[derive(Debug, Serialize)]
-pub struct PublicUser {
+pub struct UserResponse {
     pub id: i32,
     pub username: String,
     pub email: String,
     pub created_at: NaiveDateTime,
 }
 
-impl From<User> for PublicUser {
+impl From<User> for UserResponse {
     fn from(user: User) -> Self {
-        PublicUser {
+        UserResponse {
             id: user.id,
             username: user.username,
             email: user.email,

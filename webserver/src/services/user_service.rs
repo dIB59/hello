@@ -30,8 +30,13 @@ pub(crate) fn get_user_by_id(user_id: i32, conn: &mut PgConnection) -> Result<Us
 }
 
 pub(crate) fn get_user_by_email(email: &str, conn: &mut PgConnection) -> Result<User, Error> {
+    users::table.filter(users::email.eq(email)).first(conn)
+}
+
+pub(crate) fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Result<i32, Error> {
     users::table
         .filter(users::email.eq(email))
+        .select(users::id)
         .first(conn)
 }
 
@@ -42,10 +47,10 @@ pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Resu
         Ok(user) => {
             let is_password_correct = verify_password(&user.password_hash, password)
                 .expect("Password verification failed");
-            if is_password_correct {
-                return Ok(user);
+            return if is_password_correct {
+                Ok(user)
             } else {
-                return Err(Error::NotFound);
+                Err(Error::NotFound)
             }
         }
         Err(error) => Err(error),
