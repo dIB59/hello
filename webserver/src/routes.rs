@@ -8,6 +8,7 @@ use crate::{
     chat::{chat_route, get_count},
     handlers::*,
 };
+use crate::handlers::project_handler::project_routes;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -15,6 +16,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .configure(task_routes)
             .configure(user_routes)
             .configure(auth_routes)
+            .configure(project_routes)
             .route("/count", web::get().to(get_count)),
     );
     cfg.service(web::scope("/ws").route("/chat", web::get().to(chat_route)));
