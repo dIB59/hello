@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function CardWithForm() {
+export function AIAgentCreate() {
   return (
     <Card className="w-[350px]">
       <CardHeader>
@@ -59,3 +59,5 @@ export function CardWithForm() {
     </Card>
   );
 }
+
+export default AIAgentCreate;
