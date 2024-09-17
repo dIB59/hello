@@ -17,6 +17,8 @@ export default function Home() {
         <Welcome />
         <Hero />
         <div className="hidden lg:inline-block md:inline-block items-center justify-center w-full">
+   
+          {/* TEsting out AIAgent creeation UI  */}
           <div>
             <AIAgentCreate />
           </div>
