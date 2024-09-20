@@ -2,6 +2,8 @@ name: Start preview app
 
 on:
   pull_request:
+    branches:
+      - main
     types: [labeled, synchronize, opened, reopened, closed]
 
 concurrency:
