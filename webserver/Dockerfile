@@ -6,7 +6,7 @@
 
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-ARG RUST_VERSION=1.80.0
+ARG RUST_VERSION=1.81.0
 ARG APP_NAME=hello
 
 ################################################################################
@@ -34,7 +34,8 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=cache,target=/usr/local/cargo/git/db \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
 cargo build --locked --release && \
-cp ./target/release/$APP_NAME /bin/server
+cp ./target/release/$APP_NAME /bin/server \
+cp migrations /migrations
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
