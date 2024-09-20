@@ -25,9 +25,11 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --app webserver-flowerwork-develop  --remote-only
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy preview app
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        run: flyctl deploy --app webserver-flowerwork-develop  --remote-only
         id: deploy
         with:
           config: webserver/fly-develop.toml
