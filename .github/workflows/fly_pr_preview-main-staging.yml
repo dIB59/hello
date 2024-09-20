@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --app webserver-flowerwork-develop --remote-only
+      - run: cd webserver && flyctl deploy --app webserver-flowerwork-develop --remote-only
 
 #jobs:
 #  preview-app:
