@@ -19,19 +19,19 @@ env:
 jobs:
   preview-app:
     if: contains(github.event.pull_request.labels.*.name, 'PR preview app')
-    runs-on: ubuntu-latest
     name: Preview app
     environment:
       name: webserver-flowerwork-develop
       url: ${{ steps.deploy.outputs.url }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --app webserver-flowerwork-develop --remote-only
+      - run: flyctl deploy --app webserver-flowerwork-develop  --remote-only
         id: deploy
         with:
           config: webserver/fly-develop.toml
-          postgres: pg-fly-pr-staging  # ← Added
+          postgres: pg-fly-pr-staging
           region: waw
           org: FlowerWork
           dockerfile: webserver/Dockerfile
