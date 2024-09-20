@@ -7,7 +7,7 @@ on:
     types: [labeled, synchronize, opened, reopened, closed]
 
 concurrency:
-  group: ${{ github.workflow }}-pr-${{ github.event.number }}
+  group: webserver-flowerwork-develop
   cancel-in-progress: true
 
 permissions:
