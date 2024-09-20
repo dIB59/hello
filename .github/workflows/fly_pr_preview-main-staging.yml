@@ -35,4 +35,4 @@ jobs:
         with:
           postgres: pg-fly-pr-staging  # ← Added
           region: waw
-          org: personal
+          org: FlowerWork
