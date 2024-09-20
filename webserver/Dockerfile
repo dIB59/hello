@@ -36,9 +36,6 @@ COPY --from=builder /app/target/release/webserver .
 # Copy the Diesel migrations folder
 COPY webserver/migrations ./migrations
 
-# Copy the .env file for configuration
-COPY webserver/.env .env
-
 # Expose the port that your Actix web app runs on
 EXPOSE 8080
 
