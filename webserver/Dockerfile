@@ -5,7 +5,7 @@ FROM rust:1.71 AS builder
 RUN apt-get update && apt-get install -y pkg-config libssl-dev
 
 # Set the working directory to the Rust backend directory
-WORKDIR /hello/webserver
+WORKDIR /app
 
 # Copy the Cargo.toml and Cargo.lock for dependency management
 COPY hello/webserver/Cargo.toml hello/webserver/Cargo.lock ./
@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y libssl1.1 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled Rust binary from the builder stage
-COPY --from=builder /hello/webserver/target/release/webserver /usr/local/bin/webserver
+COPY --from=builder /app/target/release/webserver /usr/local/bin/webserver
 
 # Expose the necessary port (e.g., 8080 for Actix)
 EXPOSE 8080
