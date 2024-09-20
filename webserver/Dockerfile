@@ -7,8 +7,8 @@ WORKDIR /usr/src/webserver
 # Copy the Cargo.toml and Cargo.lock files to install dependencies
 COPY Cargo.toml Cargo.lock ./
 
-# Create a dummy main.rs to get dependencies cached
-RUN echo "fn main() {}" > src/main.rs
+# Create the src directory and a dummy main.rs to get dependencies cached
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs
 
 # Fetch dependencies (cached)
 RUN cargo build --release
