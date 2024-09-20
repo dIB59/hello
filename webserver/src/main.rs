@@ -1,16 +1,20 @@
-use crate::database::db;
+extern crate diesel;
+use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
+
 use actix::Actor;
 use actix_cors::Cors;
+use actix_web::{App, HttpServer};
 use actix_web::middleware::Logger;
 use actix_web::web::{self, Data};
-use actix_web::{App, HttpServer};
+use dotenv::dotenv;
+
 use chat::chat_server;
 use config::Config;
 use database::db::MIGRATIONS;
-use dotenv::dotenv;
-use std::sync::atomic::AtomicUsize;
-use std::sync::Arc;
-extern crate diesel;
+
+use crate::database::db;
+
 
 mod auth;
 mod chat;
@@ -35,7 +39,7 @@ async fn main() -> std::io::Result<()> {
         &mut pool.get().expect("Unable to get db connection"),
         MIGRATIONS,
     )
-    .expect("Failed to run migrations.");
+        .expect("Failed to run migrations.");
 
     let server = chat_server::ChatServer::new(app_state.clone()).start();
     log::info!("Starting HTTP server at http://127.0.0.1:8080");
@@ -50,8 +54,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(server.clone()))
             .wrap(Logger::default())
     })
-    .workers(4)
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+        .workers(4)
+        .bind("0.0.0.0:8080")?
+        .run()
+        .await
 }
