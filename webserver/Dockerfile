@@ -1,44 +1,20 @@
-# Use the official Rust image to build the project
-FROM rust:1.78 as builder
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+WORKDIR /app
 
-# Set the working directory inside the container
-WORKDIR /usr/src/webserver
-
-# Copy the Cargo.toml and Cargo.lock files to install dependencies
-COPY Cargo.toml Cargo.lock ./
-
-# Create the src directory and a dummy main.rs to get dependencies cached
-RUN mkdir -p src && echo "fn main() {}" > src/main.rs
-
-# Fetch dependencies (cached)
-RUN cargo build --release
-
-# Copy the rest of the code
+FROM chef AS planner
 COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-# Build the actual application
-RUN cargo build --release
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY . .
+RUN cargo build --release --bin hello
 
-# Now use a small image for production (e.g., alpine-based image)
-FROM debian:buster-slim
-
-# Install necessary OS dependencies
-RUN apt-get update && apt-get install -y \
-    libssl-dev \
-    ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
-# Set the working directory inside the container
-WORKDIR /usr/src/webserver
-
-# Copy the compiled binary from the build image
-COPY --from=builder /usr/src/webserver/target/release/webserver .
-
-# Expose the port your app runs on
-EXPOSE 8080
-
-# Set environment variables if needed
-# ENV RUST_LOG=info
-
-# Run the web server
-CMD ["./webserver"]
+# We do not need the Rust toolchain to run the binary!
+FROM debian:bookworm-slim AS runtime
+WORKDIR /app
+COPY --from=builder /app/target/release/hello /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/hello"]

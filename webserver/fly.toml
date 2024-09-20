@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for webserver-flowerwork-develop on 2024-09-20T11:37:04+02:00
+# fly.toml app configuration file generated for webserver-flowerwork-develop-cold-forest-3981 on 2024-09-20T17:43:45+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'webserver-flowerwork-develop'
+app = 'webserver-flowerwork-develop-cold-forest-3981'
 primary_region = 'arn'
 
 [build]
