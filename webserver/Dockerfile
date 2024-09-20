@@ -1,5 +1,5 @@
 # Use the official Rust image to build the project
-FROM rust:1.72 as builder
+FROM rust:1.78 as builder
 
 # Set the working directory inside the container
 WORKDIR /usr/src/webserver
