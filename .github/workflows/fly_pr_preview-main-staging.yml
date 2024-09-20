@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Cd into correct folder
+        run: cd webserver
       - name: Deploy preview app
         uses: superfly/fly-pr-review-apps@1.2.0
         id: deploy
