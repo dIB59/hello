@@ -7,7 +7,7 @@ on:
     types: [labeled, synchronize, opened, reopened, closed]
 
 concurrency:
-  group: webserver-flowerwork-develop
+  group: ${{ github.workflow }}-pr-${{ github.event.number }}
   cancel-in-progress: true
 
 permissions:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Preview app
     environment:
-      name: pr-${{ github.event.number }}
+      name: webserver-flowerwork-develop
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - name: Checkout
