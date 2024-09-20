@@ -1,13 +1,37 @@
-name: Deploy to Fly
-on: [ pull_request ]
+name: Start preview app
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [ labeled, synchronize, opened, reopened, closed ]
+
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
 jobs:
-  deploy:
-    name: Deploy proxy
+  staging_app:
     runs-on: ubuntu-latest
+
+    # Only run one deployment at a time per PR.
+    concurrency:
+      group: pr-${{ github.event.number }}
+
+    # Create a GitHub deployment environment per staging app so it shows up
+    # in the pull request UI.
+    environment:
+      name: webserver-flowerwork-develop
+      url: ${{ steps.deploy.outputs.url }}
+
     steps:
-      # This step checks out a copy of your repository.
-      - uses: actions/checkout@v2
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - uses: actions/checkout@v4
+      - name: Deploy
+        id: deploy
+        uses: superfly/fly-pr-review-apps@1.0.0
