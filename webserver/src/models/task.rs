@@ -3,16 +3,16 @@ use serde::{Deserialize, Serialize};
 
 use crate::schema::tasks;
 
-#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Associations, Identifiable)]
+#[derive(Queryable, Selectable, Serialize, Deserialize, Debug, Associations, Identifiable, PartialEq)]
 #[diesel(table_name = tasks)]
 #[belongs_to(Project)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Task {
     pub id: i32,
+    pub project_id: i32,
     pub description: String,
     pub reward: i64,
     pub completed: bool,
-    pub project_id: Option<i32>,
 }
 
 pub struct TaskResponse {

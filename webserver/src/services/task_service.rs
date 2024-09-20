@@ -4,10 +4,10 @@ use diesel::result::Error;
 use crate::models::task::{NewTask, Task};
 use crate::schema::tasks;
 
-pub async fn create_task(
+pub fn create_task(
     conn: &mut PgConnection,
     description: &str,
-    reward: &i64,
+    reward: i64,
 ) -> Result<Task, Error> {
     let new_task = NewTask {
         description,
@@ -22,9 +22,12 @@ pub async fn create_task(
     return some;
 }
 
-pub(crate) async fn get_tasks(conn: &mut PgConnection) -> Result<Vec<Task>, Error> {
-    let tasks = tasks::table.load::<Task>(conn);
-    return tasks;
+pub(crate) fn get_tasks(conn: &mut PgConnection) -> Result<Vec<Task>, Error> {
+    tasks::table.load::<Task>(conn)
+}
+
+pub(crate) fn get_task_by_id(conn: &mut PgConnection, task_id: i32) -> Result<Task, Error> {
+    tasks::table.find(task_id).first(conn)
 }
 
 #[cfg(test)]
@@ -40,7 +43,7 @@ mod tests {
         let description = "test task";
         let reward = 100;
 
-        let result = create_task(&mut db.conn(), description, &reward).await;
+        let result = create_task(&mut db.conn(), description, reward);
 
         assert!(
             result.is_ok(),
@@ -51,8 +54,4 @@ mod tests {
         assert_eq!(created_task.description, description);
         assert_eq!(created_task.reward, reward);
     }
-}
-
-pub(crate) async fn get_task_by_id(conn: &mut PgConnection, task_id: i32) -> Result<Task, Error> {
-    tasks::table.find(task_id).first(conn)
 }
