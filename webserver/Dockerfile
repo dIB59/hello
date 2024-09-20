@@ -63,6 +63,7 @@ RUN adduser \
 USER appuser
 
 # Copy the executable from the "build" stage.
+COPY --from=build /migrations /migrations
 COPY --from=build /bin/server /bin/
 
 # Expose the port that the application listens on.
