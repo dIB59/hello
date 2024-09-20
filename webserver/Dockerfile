@@ -1,17 +1,21 @@
-FROM rust:1.72.0-alpine as builder
+FROM rust:1.81.0-alpine as builder
 
 WORKDIR /app
 
-# Copy only the relevant parts of the mono repo
-COPY Cargo.toml Cargo.lock ./
+COPY webserver/Cargo.toml webserver/Cargo.lock ./
 
-RUN cargo install --path webserver
+RUN cargo install cargo-edit
+RUN cargo add actix-web
 
-FROM alpine:3.17
+COPY webserver/src/ ./src/
 
-COPY --from=builder /app/.cargo/bin/actix-web /usr/local/bin/actix-web
+RUN cargo build --release
 
+FROM alpine:3.16
+
+WORKDIR /app
+
+# Adjust the binary name to match the output of your project
+COPY --from=builder /app/target/release/hello.exe /app/hello.exe
 EXPOSE 8080
-
-# Adjust the command to run your specific Actix Web application
-CMD ["actix-web", "run", "--config", "/app/webserver/config.toml"]
+CMD ["/app/hello.exe"]
