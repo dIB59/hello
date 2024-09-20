@@ -1,43 +1,44 @@
-# Use the official Rust image as the base for building
-FROM rust:1.72 AS builder
+# Use the official Rust image to build the project
+FROM rust:1.72 as builder
 
-# Set the working directory inside the Docker container
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/src/webserver
 
-# Copy the manifest files to cache dependencies
-COPY webserver/Cargo.toml webserver/Cargo.lock ./
-COPY webserver/diesel.toml ./
+# Copy the Cargo.toml and Cargo.lock files to install dependencies
+COPY Cargo.toml Cargo.lock ./
 
-# Create a dummy source file to trigger the caching of dependencies
-RUN mkdir src
+# Create a dummy main.rs to get dependencies cached
 RUN echo "fn main() {}" > src/main.rs
 
-# Fetch dependencies
-RUN cargo fetch
-
-# Copy the entire source code
-COPY webserver/ .
-
-# Compile the project in release mode
+# Fetch dependencies (cached)
 RUN cargo build --release
 
-# Use a smaller base image for the final stage
+# Copy the rest of the code
+COPY . .
+
+# Build the actual application
+RUN cargo build --release
+
+# Now use a small image for production (e.g., alpine-based image)
 FROM debian:buster-slim
 
-# Install system dependencies, including Diesel CLI if necessary for migrations
-RUN apt-get update && apt-get install -y libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
+# Install necessary OS dependencies
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
-WORKDIR /app
+# Set the working directory inside the container
+WORKDIR /usr/src/webserver
 
-# Copy the compiled binary from the previous stage
-COPY --from=builder /app/target/release/webserver .
+# Copy the compiled binary from the build image
+COPY --from=builder /usr/src/webserver/target/release/webserver .
 
-# Copy the Diesel migrations folder
-COPY webserver/migrations ./migrations
-
-# Expose the port that your Actix web app runs on
+# Expose the port your app runs on
 EXPOSE 8080
 
-# Command to run your Actix web server
+# Set environment variables if needed
+# ENV RUST_LOG=info
+
+# Run the web server
 CMD ["./webserver"]
