@@ -1,37 +1,46 @@
-# Stage 1: Build the Rust backend
-FROM rust:1.71 AS builder
+# Use the official Rust image as the base for building
+FROM rust:1.72 AS builder
 
-# Install dependencies needed for the build
-RUN apt-get update && apt-get install -y pkg-config libssl-dev
-
-# Set the working directory to the Rust backend directory
+# Set the working directory inside the Docker container
 WORKDIR /app
 
-# Copy the Cargo.toml and Cargo.lock for dependency management
-COPY hello/webserver/Cargo.toml hello/webserver/Cargo.lock ./
+# Copy the manifest files to cache dependencies
+COPY webserver/Cargo.toml webserver/Cargo.lock ./
+COPY webserver/diesel.toml ./
 
-# Pre-build dependencies to cache them
+# Create a dummy source file to trigger the caching of dependencies
+RUN mkdir src
+RUN echo "fn main() {}" > src/main.rs
+
+# Fetch dependencies
+RUN cargo fetch
+
+# Copy the entire source code
+COPY webserver/ .
+
+# Compile the project in release mode
 RUN cargo build --release
-RUN rm -rf src/*
 
-# Copy the source code for the backend
-COPY hello/webserver/src ./src
-
-# Build the backend for release
-RUN cargo build --release
-
-# Stage 2: Prepare a minimal image for running the backend
+# Use a smaller base image for the final stage
 FROM debian:buster-slim
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y libssl1.1 ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+# Install system dependencies, including Diesel CLI if necessary for migrations
+RUN apt-get update && apt-get install -y libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Copy the compiled Rust binary from the builder stage
-COPY --from=builder /app/target/release/webserver /usr/local/bin/webserver
+# Set the working directory
+WORKDIR /app
 
-# Expose the necessary port (e.g., 8080 for Actix)
+# Copy the compiled binary from the previous stage
+COPY --from=builder /app/target/release/webserver .
+
+# Copy the Diesel migrations folder
+COPY webserver/migrations ./migrations
+
+# Copy the .env file for configuration
+COPY webserver/.env .env
+
+# Expose the port that your Actix web app runs on
 EXPOSE 8080
 
-# Set the startup command
-CMD ["webserver"]
+# Command to run your Actix web server
+CMD ["./webserver"]
