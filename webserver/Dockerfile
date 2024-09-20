@@ -11,7 +11,9 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application with migrations folder bound
 COPY . .
-RUN cargo build --release --bin hello --manifest-path . -- --migrations /app/migrations
+RUN --mount=type=bind,source=migrations,target=migrations \
+    cargo build --release --bin hello --manifest-path . -- --migrations /app/migrations
+
 
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
