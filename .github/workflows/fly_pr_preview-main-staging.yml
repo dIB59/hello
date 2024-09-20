@@ -25,10 +25,10 @@ jobs:
       name: webserver-flowerwork-develop
       url: ${{ steps.deploy.outputs.url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Deploy preview app
-        uses: superfly/fly-pr-review-apps@1.2.0
+        uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --app webserver-flowerwork-develop --remote-only
         id: deploy
         with:
           config: webserver/fly-develop.toml
