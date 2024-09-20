@@ -25,18 +25,12 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Flyctl
-        run: |
-          curl -L https://fly.io/install.sh | sh
-      - name: Deploy preview app
-        uses: superfly/fly-pr-review-apps@1.2.0
+      - uses: actions/checkout@v2
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
         id: deploy
         with:
           config: webserver/fly-develop.toml
           postgres: pg-fly-pr-staging
           region: waw
           org: FlowerWork
-          app: webserver-flowerwork-develop
-
