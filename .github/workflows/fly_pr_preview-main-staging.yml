@@ -1,36 +1,13 @@
-name: Start preview app
-
-on:
-  pull_request:
-    branches:
-      - main
-    types: [ labeled, synchronize, opened, reopened, closed ]
-
-concurrency:
-  group: ${{ github.workflow }}-pr-${{ github.event.number }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-
-env:
-  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
+name: Deploy to Fly
+on: [ pull_request ]
 jobs:
-  preview-app:
-    if: contains(github.event.pull_request.labels.*.name, 'PR preview app')
-    name: Preview app
-    environment:
-      name: webserver-flowerwork-develop
-      url: ${{ steps.deploy.outputs.url }}
+  deploy:
+    name: Deploy proxy
     runs-on: ubuntu-latest
     steps:
+      # This step checks out a copy of your repository.
       - uses: actions/checkout@v2
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
-        id: deploy
-        with:
-          config: webserver/fly-develop.toml
-          postgres: pg-fly-pr-staging
-          region: waw
-          org: FlowerWork
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
