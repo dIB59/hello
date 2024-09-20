@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [labeled, synchronize, opened, reopened, closed]
+    types: [ labeled, synchronize, opened, reopened, closed ]
 
 concurrency:
   group: ${{ github.workflow }}-pr-${{ github.event.number }}
@@ -38,4 +38,5 @@ jobs:
           postgres: pg-fly-pr-staging
           region: waw
           org: FlowerWork
-          dockerfile: webserver/Dockerfile
+          app: webserver-flowerwork-develop
+
