@@ -19,4 +19,5 @@ WORKDIR /app
 COPY --from=builder /app/target/release/hello /usr/local/bin
 #Copy the migrations
 COPY --from=builder /app/migrations /migrations
+EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/hello"]
