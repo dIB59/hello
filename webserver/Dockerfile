@@ -16,6 +16,8 @@ RUN cargo build --release --bin hello
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
+# Install the PostgreSQL client library
+RUN apt-get update && apt-get install -y libpq5 && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/hello /usr/local/bin
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/hello"]
