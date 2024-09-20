@@ -3,7 +3,7 @@ FROM rust:1.72.0-alpine as builder
 WORKDIR /app
 
 # Copy only the relevant parts of the mono repo
-COPY webserver/Cargo.toml webserver/Cargo.lock ./
+COPY Cargo.toml Cargo.lock ./
 
 RUN cargo install --path webserver
 
