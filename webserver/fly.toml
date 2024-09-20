@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'webserver-flowerwork-develop-cold-forest-3981'
+app = 'webserver-flowerwork-develop'
 primary_region = 'arn'
 
 [build]

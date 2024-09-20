@@ -1,23 +1,17 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+FROM rust:1.72.0-alpine as builder
+
 WORKDIR /app
 
-FROM chef AS planner
-COPY . .
-RUN cargo chef prepare --recipe-path recipe.json
+# Copy only the relevant parts of the mono repo
+COPY webserver/Cargo.toml webserver/Cargo.lock ./
 
-FROM chef AS builder
-COPY --from=planner /app/recipe.json recipe.json
-# Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json
-# Build application
-COPY . .
-RUN cargo build --release --bin hello
+RUN cargo install --path webserver
 
-# We do not need the Rust toolchain to run the binary!
-FROM debian:bookworm-slim AS runtime
-WORKDIR /app
-# Install the PostgreSQL client library
-RUN apt-get update && apt-get install -y libpq5 && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /app/target/release/hello /usr/local/bin
+FROM alpine:3.17
+
+COPY --from=builder /app/.cargo/bin/actix-web /usr/local/bin/actix-web
+
 EXPOSE 8080
-ENTRYPOINT ["/usr/local/bin/hello"]
+
+# Adjust the command to run your specific Actix Web application
+CMD ["actix-web", "run", "--config", "/app/webserver/config.toml"]
