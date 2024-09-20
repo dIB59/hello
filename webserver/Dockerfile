@@ -17,7 +17,7 @@ ARG APP_NAME
 WORKDIR /app
 
 # Install host build dependencies.
-RUN apk add --no-cache clang lld musl-dev git pkgconfig openssl-dev
+RUN apk add --no-cache clang lld musl-dev git pkgconfig openssl-dev postgresql-dev
 
 # Build the application.
 # Leverage a cache mount to /usr/local/cargo/registry/
