@@ -33,6 +33,7 @@ jobs:
         uses: superfly/fly-pr-review-apps@1.2.0
         id: deploy
         with:
+          config: webserver/fly-develop.toml
           postgres: pg-fly-pr-staging  # ← Added
           region: waw
           org: FlowerWork
