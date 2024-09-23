@@ -16,7 +16,10 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .configure(auth_routes)
             .route("/count", web::get().to(get_count)),
     );
-    cfg.service(web::scope("/ws").route("/chat", web::get().to(chat_route)));
+    cfg.service(
+        web::scope("/ws")
+            .wrap(auth_middleware::Auth)
+            .route("/chat", web::get().to(chat_route)));
 }
 
 fn user_routes(cfg: &mut web::ServiceConfig) {
