@@ -17,6 +17,7 @@ pub async fn get_count(count: web::Data<AtomicUsize>) -> impl Responder {
     format!("Visitors: {current_count}")
 }
 
+
 pub async fn chat_route(
     req: HttpRequest,
     stream: web::Payload,
