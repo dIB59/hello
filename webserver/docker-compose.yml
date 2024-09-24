@@ -1,4 +1,16 @@
+name: rust-webserver-with-postgres
 services:
+  rust-webserver:
+    container_name: rust-webserver
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: "postgres://myuser:mypassword@postgres:5432/postgres"
+    depends_on:
+      - postgres
   postgres:
     image: postgres:16.3-alpine
     container_name: postgres
