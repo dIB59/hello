@@ -1,0 +1,34 @@
+# fly.toml app configuration file generated for webserver-flowerwork-develop-empty-bird-2 on 2024-09-20T20:58:20+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'webserver-flowerwork-develop'
+primary_region = 'arn'
+
+[build]
+
+[env]
+PORT = '8080'
+
+[http_service]
+internal_port = 8080
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 0
+max_machines_running = 1
+processes = ['app']
+
+[[http_services.checks]]
+type = "http"
+interval = "60s"
+path = "/api/v1/health"
+timeout = "5s"
+grace_period = "10s"
+initial_delay = "15s"
+
+[[vm]]
+memory = '512mb'
+cpu_kind = 'shared'
+cpus = 1

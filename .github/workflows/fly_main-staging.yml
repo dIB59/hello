@@ -1,0 +1,30 @@
+name: Start staging preview app
+
+on:
+  pull_request:
+    paths:
+      - "webserver/**"
+      - ".github/workflows/fly_main-staging.yml"
+    branches:
+      - main
+    types: [ labeled, synchronize, opened, reopened, closed ]
+
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+jobs:
+  preview-app:
+    #if: contains(github.event.pull_request.labels.*.name, 'PR preview app')
+    name: Staging preview app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: cd webserver && flyctl deploy --app webserver-flowerwork-develop --remote-only --config fly-staging.toml
