@@ -1,7 +1,7 @@
-use crate::db::DbPool;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{get, HttpResponse, post, Responder, web};
 use serde::Deserialize;
 
+use crate::db::DbPool;
 use crate::services::task_service;
 
 #[derive(Deserialize)]
