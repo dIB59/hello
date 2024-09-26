@@ -1,6 +1,6 @@
 use actix_web::web;
 use task_handler::task_routes;
-use crate::routes::health_handler::health_check;
+use crate::routes::health_handler::health_routes;
 
 use crate::{
     auth::auth_middleware,
@@ -37,6 +37,4 @@ fn protect(cfg: &mut web::ServiceConfig) {
     );
 }
 
-fn health_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/health", web::get().to(health_check)); 
-}
+
