@@ -21,7 +21,7 @@ env:
 
 jobs:
   preview-app:
-    if: contains(github.event.pull_request.labels.*.name, 'PR preview app')
+    #if: contains(github.event.pull_request.labels.*.name, 'PR preview app')
     name: Staging dev preview app
     runs-on: ubuntu-latest
     steps:
