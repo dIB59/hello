@@ -15,7 +15,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .configure(protect)
             .configure(user_routes)
             .configure(auth_routes)
-            .route("/health", web::get().to(health_check))
+            .configure(health_routes)
             .route("/count", web::get().to(get_count)),
     );
     cfg.service(
@@ -38,4 +38,8 @@ fn protect(cfg: &mut web::ServiceConfig) {
             .wrap(auth_middleware::Auth)
             .service(user_handler::me),
     );
+}
+
+fn health_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route("/health", web::get().to(health_check)); 
 }
