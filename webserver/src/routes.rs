@@ -1,5 +1,6 @@
 use actix_web::web;
 use task_handler::task_routes;
+use crate::routes::health_handler::health_routes;
 
 use crate::{
     auth::auth_middleware,
@@ -14,6 +15,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .configure(protect)
             .configure(user_routes)
             .configure(auth_routes)
+            .configure(health_routes)
             .route("/count", web::get().to(get_count)),
     );
     cfg.service(
@@ -37,3 +39,4 @@ fn protect(cfg: &mut web::ServiceConfig) {
             .service(user_handler::me),
     );
 }
+
