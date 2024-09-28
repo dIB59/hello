@@ -30,6 +30,12 @@ pub(crate) fn get_user_by_id(user_id: i32, conn: &mut PgConnection) -> Result<Us
         .first::<User>(conn)
 }
 
+pub fn get_user_by_email(user_email: String, conn: &mut PgConnection) -> Result<User, Error> {
+    users::table
+        .filter(users::email.eq(user_email))
+        .first::<User>(conn)
+}
+
 pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
     let user = users::table
         .filter(users::email.eq(email))
