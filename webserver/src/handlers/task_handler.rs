@@ -26,7 +26,7 @@ pub async fn create_task(
     task: web::Json<CreateTaskRequest>,
 ) -> impl Responder {
     let mut conn = pool.get().expect("Failed to get DB connection.");
-    match task_service::create_task(&mut conn, &task.description, &task.reward).await {
+    match task_service::create_task(&mut conn, &task.description, task.reward).await {
         Ok(task) => HttpResponse::Ok().json(task),
         Err(_) => HttpResponse::InternalServerError().json("Error creating new task"),
     }
