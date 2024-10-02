@@ -23,11 +23,14 @@ pub fn create_task(
 }
 
 pub(crate) fn get_tasks(conn: &mut PgConnection) -> Result<Vec<Task>, Error> {
-    tasks::table.load::<Task>(conn)
+    tasks::table.load(conn)
 }
 
 pub(crate) fn get_task_by_id(conn: &mut PgConnection, task_id: i32) -> Result<Task, Error> {
-    tasks::table.find(task_id).first(conn)
+    use crate::schema::tasks::dsl::*;
+    let task = tasks.filter(id.eq(task_id))
+        .first::<Task>(conn)?;
+    Ok(task)
 }
 
 #[cfg(test)]

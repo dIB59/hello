@@ -33,7 +33,7 @@ pub(crate) fn get_user_by_email(email: &str, conn: &mut PgConnection) -> Result<
     users::table.filter(users::email.eq(email)).first(conn)
 }
 
-pub(crate) fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Result<i32, Error> {
+pub(crate) async fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Result<i32, Error> {
     users::table
         .filter(users::email.eq(email))
         .select(users::id)
@@ -51,7 +51,7 @@ pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Resu
                 Ok(user)
             } else {
                 Err(Error::NotFound)
-            }
+            };
         }
         Err(error) => Err(error),
     }

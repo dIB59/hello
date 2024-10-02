@@ -26,7 +26,7 @@ pub async fn create_project(
     user_sub: UserSub,
 ) -> impl Responder {
     let mut conn = pool.get().expect("Failed to get DB connection.");
-    let id: i32 = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
+    let id: i32 = get_user_id_by_email(&user_sub.0, &mut conn).await.expect("Failed to get user id");
 
     match project_service::create_project(&mut conn, &project.title, &project.description, &id)
     {

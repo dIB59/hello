@@ -15,7 +15,7 @@ pub struct Project {
     pub title: String,
     pub description: String,
     pub created_at: NaiveDateTime,
-    
+
 }
 
 #[derive(Serialize)]
