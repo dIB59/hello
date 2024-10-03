@@ -1,7 +1,9 @@
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use serde::{Deserialize, Serialize};
 use std::env;
 
+use jsonwebtoken::{Algorithm, decode, DecodingKey, encode, EncodingKey, Header, Validation};
+use serde::{Deserialize, Serialize};
+
+//Sub is the email of the user
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,

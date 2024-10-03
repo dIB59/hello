@@ -1,12 +1,15 @@
-pub mod chat;
-pub mod chat_server;
-
 use std::{
     sync::atomic::{AtomicUsize, Ordering},
     time::Instant,
 };
 
 use actix::Addr;
+use actix_web::{Error, HttpRequest, HttpResponse, Responder, web};
+use actix_web_actors::ws;
+
+pub mod chat_routes;
+pub mod chat;
+pub mod chat_server;
 use actix_web::{web, Error, HttpMessage, HttpRequest, HttpResponse, Responder};
 use actix_web_actors::ws;
 
@@ -17,8 +20,7 @@ pub async fn get_count(count: web::Data<AtomicUsize>) -> impl Responder {
     format!("Visitors: {current_count}")
 }
 
-
-pub async fn chat_route(
+pub async fn chat_handler(
     req: HttpRequest,
     stream: web::Payload,
     srv: web::Data<Addr<chat_server::ChatServer>>,

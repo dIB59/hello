@@ -1,14 +1,17 @@
 use std::{
-    future::{ready, Future, Ready},
+    future::{Future, ready, Ready},
     pin::Pin,
 };
 
 use actix_web::{
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+    dev::{forward_ready, Payload, Service, ServiceRequest, ServiceResponse, Transform},
     error::{self},
-    Error, HttpMessage,
+    Error, FromRequest, HttpMessage, HttpRequest,
 };
+use serde::Serialize;
 use serde_json::json;
+
+use crate::models::user::UserSub;
 
 use super::jwt_auth_service::{self};
 
@@ -63,7 +66,8 @@ where
         match claims {
             Ok(claims) => {
                 let user_id = claims.sub;
-                req.extensions_mut().insert(user_id);
+                log::info!("User ID: {}", user_id);
+                req.extensions_mut().insert::<UserSub>(UserSub(user_id));
                 let fut = self.service.call(req);
                 Box::pin(async move {
                     let res = fut.await?;
