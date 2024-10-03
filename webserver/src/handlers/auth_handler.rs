@@ -24,7 +24,7 @@ pub async fn login(
     credentials: web::Json<LoginRequest>,
 ) -> impl Responder {
     let mut conn = pool.get().expect("Failed to get DB connection.");
-    match user_service::login(&mut conn, &credentials.email, &credentials.password).await {
+    match user_service::login(&mut conn, &credentials.email, &credentials.password) {
         Ok(user) => {
             let bearer_token = create_jwt(&user.email);
             let public_user: UserResponse = user.into();

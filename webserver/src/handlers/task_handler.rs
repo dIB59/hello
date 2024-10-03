@@ -8,6 +8,7 @@ use crate::services::task_service;
 pub struct CreateTaskRequest {
     description: String,
     reward: i64,
+    project_id: i32,
 }
 
 pub fn task_routes(cfg: &mut web::ServiceConfig) {
@@ -26,7 +27,7 @@ pub async fn create_task(
     task: web::Json<CreateTaskRequest>,
 ) -> impl Responder {
     let mut conn = pool.get().expect("Failed to get DB connection.");
-    match task_service::create_task(&mut conn, &task.description, task.reward) {
+    match task_service::create_task(&mut conn, &task.description, task.reward, task.project_id) {
         Ok(task) => HttpResponse::Ok().json(task),
         Err(_) => HttpResponse::InternalServerError().json("Error creating new task"),
     }

@@ -55,4 +55,5 @@ pub struct NewTask<'a> {
     pub description: &'a str,
     pub reward: i64,
     pub completed: bool,
+    pub project_id: i32,
 }

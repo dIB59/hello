@@ -33,14 +33,14 @@ pub(crate) fn get_user_by_email(email: &str, conn: &mut PgConnection) -> Result<
     users::table.filter(users::email.eq(email)).first(conn)
 }
 
-pub(crate) async fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Result<i32, Error> {
+pub(crate) fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Result<i32, Error> {
     users::table
         .filter(users::email.eq(email))
         .select(users::id)
         .first(conn)
 }
 
-pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
+pub fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
     let user = get_user_by_email(email, conn);
 
     match user {
