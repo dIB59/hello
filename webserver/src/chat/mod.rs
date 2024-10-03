@@ -4,17 +4,14 @@ use std::{
 };
 
 use actix::Addr;
-use actix_web::{Error, HttpRequest, HttpResponse, Responder, web};
-use actix_web_actors::ws;
-
-pub mod chat_routes;
-pub mod chat;
-pub mod chat_server;
-use actix_web::{web, Error, HttpMessage, HttpRequest, HttpResponse, Responder};
+use actix_web::{Error, HttpMessage, HttpRequest, HttpResponse, Responder, web};
 use actix_web_actors::ws;
 
 use crate::{database::db::DbPool, services::user_service::get_user_by_email};
 
+pub mod chat_routes;
+pub mod chat;
+pub mod chat_server;
 pub async fn get_count(count: web::Data<AtomicUsize>) -> impl Responder {
     let current_count = count.load(Ordering::SeqCst);
     format!("Visitors: {current_count}")
@@ -28,8 +25,8 @@ pub async fn chat_handler(
     let user_id = req.extensions().get::<String>().unwrap_or(&"".to_string()).to_owned();
     let mut conn =
         req.app_data::<web::Data<DbPool>>().unwrap().get().expect("Failed to get DB connection.");
-    
-    match get_user_by_email(user_id, &mut conn){
+
+    match get_user_by_email(&user_id, &mut conn) {
         Ok(user) => {
             ws::start(
                 chat::WsChatSession {
@@ -48,5 +45,4 @@ pub async fn chat_handler(
             Err(actix_web::error::ErrorUnauthorized("Unauthorized"))
         }
     }
-    
 }
