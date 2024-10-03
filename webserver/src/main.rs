@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
         &mut pool.get().expect("Unable to get db connection"),
         MIGRATIONS,
     )
-    .expect("Failed to run migrations.");
+        .expect("Failed to run migrations.");
 
     let server = chat_server::ChatServer::new(app_state.clone()).start();
     log::debug!("Starting HTTP server at http://127.0.0.1:8080");
@@ -56,8 +56,8 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(server.clone()))
             .wrap(Logger::default())
     })
-    .workers(4)
-    .bind("127.0.0.1:8080")?
-    .run()
-    .await
+        .workers(4)
+        .bind("0.0.0.0:8080")?
+        .run()
+        .await
 }
