@@ -1,8 +1,11 @@
-use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, JoinOnDsl, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper, Table};
+use diesel::associations::HasTable;
 use diesel::result::Error;
 
-use crate::{models::project::NewProject, schema::projects};
+use crate::{models::project::NewProject, schema, schema::projects};
+use crate::models::project;
 use crate::models::project::Project;
+use crate::models::task::Task;
 
 pub fn create_project(
     conn: &mut PgConnection,
@@ -10,6 +13,7 @@ pub fn create_project(
     description: &str,
     user_id: &i32,
 ) -> Result<Project, Error> {
+    use crate::schema::tasks::dsl::tasks;
     let new_project = NewProject {
         title,
         description,
@@ -30,6 +34,21 @@ pub fn get_projects(conn: &mut PgConnection, user: &i32) -> Result<Vec<Project>,
     return projects;
 }
 
+fn get_project_with_tasks(
+    conn: &mut PgConnection,
+    project_id: &i32,
+) -> QueryResult<(Project, Vec<Task>)> {
+    let project = projects::table
+        .find(project_id)
+        .first::<Project>(conn)?;
+
+    let project_tasks = schema::tasks::table
+        .filter(schema::tasks::project_id.eq(project_id))
+        .load::<Task>(conn)?;
+
+    Ok((project, project_tasks))
+}
+
 pub fn get_project_by_id(conn: &mut PgConnection, project_id: &i32) -> Result<Project, Error> {
     let project = projects::table
         .find(project_id)
@@ -39,6 +58,7 @@ pub fn get_project_by_id(conn: &mut PgConnection, project_id: &i32) -> Result<Pr
 
 mod tests {
     use crate::database::test_db::TestDb;
+    use crate::services::task_service::create_task;
     use crate::services::user_service::register_user;
 
     use super::*;
