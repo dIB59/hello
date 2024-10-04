@@ -1,8 +1,11 @@
-use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, JoinOnDsl, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper, Table};
+use diesel::associations::HasTable;
 use diesel::result::Error;
 
-use crate::{models::project::NewProject, schema::projects};
+use crate::{models::project::NewProject, schema, schema::projects};
+use crate::models::project;
 use crate::models::project::Project;
+use crate::models::task::Task;
 
 pub fn create_project(
     conn: &mut PgConnection,
@@ -10,6 +13,7 @@ pub fn create_project(
     description: &str,
     user_id: &i32,
 ) -> Result<Project, Error> {
+    use crate::schema::tasks::dsl::tasks;
     let new_project = NewProject {
         title,
         description,
@@ -30,6 +34,21 @@ pub fn get_projects(conn: &mut PgConnection, user: &i32) -> Result<Vec<Project>,
     return projects;
 }
 
+fn get_project_with_tasks(
+    conn: &mut PgConnection,
+    project_id: &i32,
+) -> QueryResult<(Project, Vec<Task>)> {
+    let project = projects::table
+        .find(project_id)
+        .first::<Project>(conn)?;
+
+    let project_tasks = schema::tasks::table
+        .filter(schema::tasks::project_id.eq(project_id))
+        .load::<Task>(conn)?;
+
+    Ok((project, project_tasks))
+}
+
 pub fn get_project_by_id(conn: &mut PgConnection, project_id: &i32) -> Result<Project, Error> {
     let project = projects::table
         .find(project_id)
@@ -39,6 +58,7 @@ pub fn get_project_by_id(conn: &mut PgConnection, project_id: &i32) -> Result<Pr
 
 mod tests {
     use crate::database::test_db::TestDb;
+    use crate::services::task_service::create_task;
     use crate::services::user_service::register_user;
 
     use super::*;
@@ -112,5 +132,29 @@ mod tests {
         assert_eq!(project_by_id.title, title);
         assert_eq!(project_by_id.description, description);
         assert_eq!(project_by_id.user_id, user_id);
+    }
+
+    #[actix_rt::test]
+    async fn test_get_project_with_tasks() {
+        let db = TestDb::new();
+        let mut conn = db.conn();
+
+        let title = "Test Project";
+        let description = "Test Project Description";
+        let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
+            .await.expect("Failed to register user").id;
+
+        let project_id = create_project(&mut conn, title, description, &user_id)
+            .expect("Failed to create project")
+            .id;
+        let (project_new, tasks_new) = get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
+        assert_eq!(project_new.id, project_id);
+        assert_eq!(tasks_new.len(), 0);
+
+        let task_1 = create_task(&mut conn, "test task 1", 100, project_id);
+        let task_2 = create_task(&mut conn, "test task 2", 200, project_id);
+
+        let (project, tasks) = get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
+        assert_eq!(tasks.len(), 2);
     }
 }
