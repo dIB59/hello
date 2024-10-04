@@ -1,4 +1,5 @@
 extern crate diesel;
+
 use std::sync::Arc;
 use std::sync::atomic::AtomicUsize;
 
@@ -25,6 +26,7 @@ mod models;
 mod routes;
 mod schema;
 mod services;
+mod extractors;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -42,7 +44,7 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to run migrations.");
 
     let server = chat_server::ChatServer::new(app_state.clone()).start();
-    log::info!("Starting HTTP server at http://127.0.0.1:8080");
+    log::debug!("Starting HTTP server at http://127.0.0.1:8080");
     HttpServer::new(move || {
         let cors = Cors::permissive();
 
