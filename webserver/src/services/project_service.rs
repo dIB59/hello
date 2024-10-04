@@ -113,4 +113,28 @@ mod tests {
         assert_eq!(project_by_id.description, description);
         assert_eq!(project_by_id.user_id, user_id);
     }
+
+    #[actix_rt::test]
+    async fn test_get_project_with_tasks() {
+        let db = TestDb::new();
+        let mut conn = db.conn();
+
+        let title = "Test Project";
+        let description = "Test Project Description";
+        let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
+            .await.expect("Failed to register user").id;
+
+        let project_id = create_project(&mut conn, title, description, &user_id)
+            .expect("Failed to create project")
+            .id;
+        let (project_new, tasks_new) = get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
+        assert_eq!(project_new.id, project_id);
+        assert_eq!(tasks_new.len(), 0);
+
+        let task_1 = create_task(&mut conn, "test task 1", 100, project_id);
+        let task_2 = create_task(&mut conn, "test task 2", 200, project_id);
+
+        let (project, tasks) = get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
+        assert_eq!(tasks.len(), 2);
+    }
 }
