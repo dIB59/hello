@@ -36,6 +36,49 @@ mod tests {
 
     use super::*;
 
+    impl<'a> PartialEq<NewJob<'a>> for Job{
+        fn eq(&self, other: &NewJob) -> bool {
+            self.user_id == *other.user_id && 
+            self.company_logo.clone().unwrap_or("missing".to_string()) == other.company_logo &&
+            self.user_id == *other.user_id &&
+            self.job_title == other.job_title &&
+            self.company_name == other.company_name &&
+            self.company_logo.clone().unwrap_or("missing".to_string()) == other.company_logo &&
+            self.company_location == other.company_location &&
+            self.company_ranking == *other.company_ranking &&
+            self.employment_type == other.employment_type &&
+            self.time_schedule == other.time_schedule &&
+            self.workplace_type == other.workplace_type &&
+            self.department == other.department &&
+            self.job_description == other.job_description &&
+            self.responsabilities == other.responsabilities &&
+            self.qualifications == other.qualifications &&
+            self.required_skills.clone().into_iter()
+                        .map(|opt| opt.unwrap_or_else(|| "missing".to_string()))
+                        .collect::<Vec<String>>() == *other.required_skills &&
+            self.preferred_skills.clone().into_iter()
+                        .map(|opt| opt.unwrap_or_else(|| "missing".to_string()))
+                        .collect::<Vec<String>>() == *other.preferred_skills &&
+            self.experience_level == other.experience_level &&
+            self.min_salary == *other.min_salary &&
+            self.max_salary == *other.max_salary &&
+            self.comp_structure == other.comp_structure &&
+            self.currency == other.currency &&
+            self.benefits_and_perks == other.benefits_and_perks &&
+            self.work_hours_flexibile == other.work_hours_flexibile &&
+            self.apply_through_platform == other.apply_through_platform &&
+            self.external_url.clone().unwrap_or("missing".to_string()) == other.external_url &&
+            self.email.clone().unwrap_or("missing".to_string())== other.email &&
+            self.audience_type == other.audience_type &&
+            self.target_candidates == other.target_candidates &&
+            self.candidate_recommendations == other.candidate_recommendations &&
+            self.jobs_screening_questions.clone().unwrap_or(vec![]).into_iter()
+                        .map(|opt| opt.unwrap_or_else(|| "missing".to_string()))
+                        .collect::<Vec<String>>() == *other.jobs_screening_questions.clone()
+        }
+        
+    }
+
     fn create_test_job<'a>(user_id :&'a i32,
                 required_skills_vec : &'a Vec<String>,
                 preferred_skills_vec : &'a Vec<String>,
@@ -73,6 +116,7 @@ mod tests {
         };
         job
     }
+
     #[actix_rt::test]
     async fn test_create_job_success() {
         let db = TestDb::new();
@@ -84,12 +128,12 @@ mod tests {
         let required_skills_vec = &vec!["tall".to_string()];
         let preferred_skills_vec = &vec!["not short".to_string()];
         let jobs_screening_vec:&Vec<String> =&vec!["what is your name?".to_string(),"where do you live?".to_string()];
-        let job = create_test_job(&user_id,
+        let new_job = create_test_job(&user_id,
                                             required_skills_vec,
                                             preferred_skills_vec,
                                             jobs_screening_vec);
         
-        let result = create_job(&mut db.conn(), &job)
+        let result = create_job(&mut db.conn(), &new_job)
             .await;
 
         assert!(
@@ -98,41 +142,7 @@ mod tests {
         );
 
         let created_job = result.unwrap();
-        assert_eq!(created_job.user_id , *job.user_id);
-        assert_eq!(created_job.job_title , job.job_title);
-        assert_eq!(created_job.company_name , job.company_name);
-        assert_eq!(created_job.company_logo.unwrap_or("missing".to_string()) , job.company_logo);
-        assert_eq!(created_job.company_location , job.company_location);
-        assert_eq!(created_job.company_ranking , *job.company_ranking);
-        assert_eq!(created_job.employment_type , job.employment_type);
-        assert_eq!(created_job.time_schedule , job.time_schedule);
-        assert_eq!(created_job.workplace_type , job.workplace_type);
-        assert_eq!(created_job.department , job.department);
-        assert_eq!(created_job.job_description , job.job_description);
-        assert_eq!(created_job.responsabilities , job.responsabilities);
-        assert_eq!(created_job.qualifications , job.qualifications);
-        assert_eq!(created_job.required_skills.into_iter()
-                    .map(|opt| opt.unwrap_or_else(|| "missing".to_string()))
-                    .collect::<Vec<String>>() , *job.required_skills);
-        assert_eq!(created_job.preferred_skills.into_iter()
-                    .map(|opt| opt.unwrap_or_else(|| "missing".to_string()))
-                    .collect::<Vec<String>>() , *job.preferred_skills);
-        assert_eq!(created_job.experience_level , job.experience_level);
-        assert_eq!(created_job.min_salary , *job.min_salary);
-        assert_eq!(created_job.max_salary , *job.max_salary);
-        assert_eq!(created_job.comp_structure , job.comp_structure);
-        assert_eq!(created_job.currency , job.currency);
-        assert_eq!(created_job.benefits_and_perks , job.benefits_and_perks);
-        assert_eq!(created_job.work_hours_flexibile , job.work_hours_flexibile);
-        assert_eq!(created_job.apply_through_platform , job.apply_through_platform);
-        assert_eq!(created_job.external_url.unwrap_or("missing".to_string()) , job.external_url);
-        assert_eq!(created_job.email.unwrap_or("missing".to_string()), job.email);
-        assert_eq!(created_job.audience_type , job.audience_type);
-        assert_eq!(created_job.target_candidates , job.target_candidates);
-        assert_eq!(created_job.candidate_recommendations , job.candidate_recommendations);
-        assert_eq!(created_job.jobs_screening_questions.unwrap_or(vec![]).into_iter()
-                    .map(|opt| opt.unwrap_or_else(|| "missing".to_string()))
-                    .collect::<Vec<String>>() , *job.jobs_screening_questions.clone());
+        assert_eq!(created_job, new_job);
     }
      
     #[actix_rt::test]
@@ -146,13 +156,12 @@ mod tests {
         let required_skills_vec = &vec!["tall".to_string()];
         let preferred_skills_vec = &vec!["not short".to_string()];
         let jobs_screening_vec:&Vec<String> =&vec!["what is your name?".to_string(),"where do you live?".to_string()];
-        let job = create_test_job(&user_id,
+        let new_job = create_test_job(&user_id,
                                             required_skills_vec,
                                             preferred_skills_vec,
                                             jobs_screening_vec);
         
-        let created_job_result = create_job(&mut db.conn(), &job)
-            .await;
+        create_job(&mut db.conn(), &new_job).await.expect("Job creation failed when it should have succeeded");
         
         let stored_jobs_result = get_jobs(&mut db.conn())
             .await;
@@ -163,35 +172,6 @@ mod tests {
         let stored_jobs_list = stored_jobs_result.unwrap();
         let last_stored_job = stored_jobs_list.last().unwrap();
 
-        let created_job = created_job_result.unwrap();
-        assert_eq!(created_job.user_id , last_stored_job.user_id);
-        assert_eq!(created_job.job_title , last_stored_job.job_title);
-        assert_eq!(created_job.company_name , last_stored_job.company_name);
-        assert_eq!(created_job.company_logo , last_stored_job.company_logo);
-        assert_eq!(created_job.company_location , last_stored_job.company_location);
-        assert_eq!(created_job.company_ranking , last_stored_job.company_ranking);
-        assert_eq!(created_job.employment_type , last_stored_job.employment_type);
-        assert_eq!(created_job.time_schedule , last_stored_job.time_schedule);
-        assert_eq!(created_job.workplace_type , last_stored_job.workplace_type);
-        assert_eq!(created_job.department , last_stored_job.department);
-        assert_eq!(created_job.job_description , last_stored_job.job_description);
-        assert_eq!(created_job.responsabilities , last_stored_job.responsabilities);
-        assert_eq!(created_job.qualifications , last_stored_job.qualifications);
-        assert_eq!(created_job.required_skills, last_stored_job.required_skills);
-        assert_eq!(created_job.preferred_skills, last_stored_job.preferred_skills);
-        assert_eq!(created_job.experience_level , job.experience_level);
-        assert_eq!(created_job.min_salary , last_stored_job.min_salary);
-        assert_eq!(created_job.max_salary , last_stored_job.max_salary);
-        assert_eq!(created_job.comp_structure , last_stored_job.comp_structure);
-        assert_eq!(created_job.currency , last_stored_job.currency);
-        assert_eq!(created_job.benefits_and_perks , last_stored_job.benefits_and_perks);
-        assert_eq!(created_job.work_hours_flexibile , last_stored_job.work_hours_flexibile);
-        assert_eq!(created_job.apply_through_platform , last_stored_job.apply_through_platform);
-        assert_eq!(created_job.external_url, last_stored_job.external_url);
-        assert_eq!(created_job.email, last_stored_job.email);
-        assert_eq!(created_job.audience_type , last_stored_job.audience_type);
-        assert_eq!(created_job.target_candidates , last_stored_job.target_candidates);
-        assert_eq!(created_job.candidate_recommendations , last_stored_job.candidate_recommendations);
-        assert_eq!(created_job.jobs_screening_questions , last_stored_job.jobs_screening_questions);
+        assert_eq!(*last_stored_job, new_job);
     }
 }
