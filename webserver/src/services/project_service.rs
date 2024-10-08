@@ -1,9 +1,9 @@
-use diesel::{ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper};
 use diesel::result::Error;
 
-use crate::{models::project::NewProject, schema::projects};
+use crate::{models::project::NewProject, schema, schema::projects};
 use crate::models::project::Project;
-
+use crate::models::task::Task;
 
 pub fn create_project(
     conn: &mut PgConnection,
