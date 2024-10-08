@@ -10,12 +10,14 @@ use crate::{
 };
 use crate::auth::auth_middleware;
 use crate::chat::chat_handler;
+use crate::handlers::auth_handler::auth_routes;
 use crate::handlers::project_handler::project_routes;
 use crate::routes::health_handler::health_routes;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api/v1")
+            .configure(auth_routes)
             .configure(task_routes)
             .configure(user_routes)
             .configure(project_routes)
