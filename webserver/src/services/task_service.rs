@@ -24,13 +24,21 @@ pub fn create_task(
     return some;
 }
 
-pub(crate) fn get_tasks(conn: &mut PgConnection) -> Result<Vec<Task>, Error> {
-    tasks::table.load(conn)
+pub(crate) fn get_tasks(conn: &mut PgConnection, users_id: &i32) -> Result<Vec<Task>, Error> {
+    crate::schema::tasks::table
+        .filter(tasks::user_id.eq(users_id))
+        .load(conn)
 }
 
-pub(crate) fn get_task_by_id(conn: &mut PgConnection, task_id: i32) -> Result<Task, Error> {
-    use crate::schema::tasks::dsl::*;
-    let task = tasks.filter(id.eq(task_id))
+pub(crate) fn get_task_by_id(conn: &mut PgConnection, task_id: i32, user: &i32) -> Result<Task, Error> {
+    //make sure the task is within user project
+    let user_project = crate::schema::projects::table
+        .filter(crate::schema::projects::user_id.eq(user))
+        .first::<crate::models::project::Project>(conn)?;
+
+    let task: Task = crate::schema::tasks::table
+        .filter(crate::schema::tasks::project_id.eq(user_project.id))
+        .find(task_id)
         .first::<Task>(conn)?;
     Ok(task)
 }
