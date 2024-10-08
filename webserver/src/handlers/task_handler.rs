@@ -19,7 +19,8 @@ pub fn task_routes(cfg: &mut web::ServiceConfig) {
             .wrap(auth_middleware::Auth)
             .service(get_tasks)
             .service(get_task_by_id)
-            .service(create_task),
+            .service(get_tasks)
+            .service(create_task)
     );
 }
 
@@ -54,3 +55,4 @@ pub async fn get_task_by_id(pool: web::Data<DbPool>, id: web::Path<i32>, user_su
         Err(_) => HttpResponse::InternalServerError().json("Error getting task"),
     }
 }
+
