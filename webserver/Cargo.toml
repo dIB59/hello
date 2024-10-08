@@ -16,7 +16,7 @@ reqwest = { version = "0.12.5", features = ["json"] }
 actix = "0.13.5"
 actix-web-actors = "4.3.0"
 actix-cors = "0.7.0"
-uuid = { version = "0.8.2", features = ["v4"] }
+uuid = { version = "1.10.0", features = ["v4"] }
 actix-rt = "2.10.0"
 rand = "0.8.5"
 actix-files = "0.6.6"
@@ -24,6 +24,7 @@ bcrypt = "0.15.1"
 env_logger = "0.11.5"
 chrono = { version = "0.4.38", features = ["serde"] }
 jsonwebtoken = "9.3.0"
+thiserror = "1.0"
 actix-service = "2.0.2"
 
 [dev-dependencies]
