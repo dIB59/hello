@@ -1,9 +1,7 @@
-use diesel::{ExpressionMethods, JoinOnDsl, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper, Table};
-use diesel::associations::HasTable;
+use diesel::{ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper};
 use diesel::result::Error;
 
 use crate::{models::project::NewProject, schema, schema::projects};
-use crate::models::project;
 use crate::models::project::Project;
 use crate::models::task::Task;
 
@@ -33,6 +31,7 @@ pub fn get_projects(conn: &mut PgConnection, user: &i32) -> Result<Vec<Project>,
         .load::<Project>(conn);
     return projects;
 }
+
 
 fn get_project_with_tasks(
     conn: &mut PgConnection,
