@@ -25,5 +25,6 @@ env_logger = "0.11.5"
 chrono = { version = "0.4.38", features = ["serde"] }
 jsonwebtoken = "9.3.0"
 actix-service = "2.0.2"
+async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] } 
 
 [dev-dependencies]
