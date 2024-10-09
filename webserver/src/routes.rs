@@ -1,5 +1,4 @@
 use actix_web::{web,HttpResponse};
-use actix_web::web;
 
 use job_handler::job_routes_auth;
 use task_handler::task_routes;
