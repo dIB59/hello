@@ -4,6 +4,7 @@ use serde::Deserialize;
 use crate::{auth::jwt_auth_service::create_jwt, database::db::DbPool, services::user_service};
 use crate::handlers::auth_handler;
 use crate::models::user::UserResponse;
+use crate::get_db_connection;
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
@@ -23,7 +24,7 @@ pub async fn login(
     pool: web::Data<DbPool>,
     credentials: web::Json<LoginRequest>,
 ) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     match user_service::login(&mut conn, &credentials.email, &credentials.password) {
         Ok(user) => {
             let bearer_token = create_jwt(&user.email);
@@ -46,7 +47,7 @@ pub async fn register(
     pool: web::Data<DbPool>,
     credentials: web::Json<RegisterRequest>,
 ) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     match user_service::register_user(
         &mut conn,
         &credentials.username,
