@@ -2,25 +2,30 @@
 
 import { useState, useEffect, useRef } from "react";
 
+// Sample contacts
+const contacts = [
+  { id: 1, name: "Maria Pepita", lastMessage: "Good morning everybody :)", time: "13:30" },
+  { id: 2, name: "Don Pepo", lastMessage: "Good morning everybody :)", time: "13:30" },
+  { id: 3, name: "Lalala", lastMessage: "Good morning everybody :)", time: "Yesterday" },
+];
+
 export default function ChatPage() {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [name, setName] = useState("");
   const [chatRooms, setChatRooms] = useState<string[]>([]);
+  const [activeChat, setActiveChat] = useState<any | null>(null); // Active chat window
   const messageEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Create WebSocket connection
     const socket = new WebSocket("ws://127.0.0.1:8080/api/ws");
 
-    // Connection opened
     socket.addEventListener("open", () => {
       console.log("Connected to WebSocket");
       setWs(socket);
     });
 
-    // Listen for messages
     socket.addEventListener("message", (event) => {
       const data = event.data as string;
       setMessages((prevMessages) => [...prevMessages, data]);
@@ -31,7 +36,6 @@ export default function ChatPage() {
       }
     });
 
-    // Clean up WebSocket connection on component unmount
     return () => {
       socket.close();
     };
@@ -42,9 +46,8 @@ export default function ChatPage() {
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (input && ws) {
+    if (input && ws && activeChat) {
       ws.send(input);
-      // setMessages((prevMessages) => [...prevMessages, `You: ${input}`]);
       setInput("");
     }
   };
@@ -57,95 +60,87 @@ export default function ChatPage() {
     }
   };
 
-  const handleListRooms = () => {
-    if (ws) {
-      const command = "/list";
-      ws.send(command);
-      setMessages((prevMessages) => [...prevMessages, `You: ${command}`]);
-    }
-  };
-
-  const handleJoinRoom = (room: string) => {
-    if (ws) {
-      const command = `/join ${room}`;
-      ws.send(command);
-      setMessages((prevMessages) => [...prevMessages, `You: ${command}`]);
-    }
+  const openChat = (contact: any) => {
+    setActiveChat(contact);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-900 text-white">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">WebSocket Chat</h1>
+    <div className="flex h-screen">
+      {/* Sidebar - Contact List */}
+      <div className="w-1/4 bg-gray-800 p-4">
+        <h2 className="text-xl font-bold text-white mb-4">Messages</h2>
+        <input
+          type="text"
+          placeholder="Search messages..."
+          className="w-full p-2 bg-gray-700 border border-gray-600 rounded mb-4 text-white"
+        />
+        <ul>
+          {contacts.map((contact) => (
+            <li
+              key={contact.id}
+              className="p-2 hover:bg-gray-700 cursor-pointer rounded"
+              onClick={() => openChat(contact)}
+            >
+              <div className="flex items-center">
+                <div className="bg-gray-600 rounded-full h-8 w-8 mr-3"></div>
+                <div className="flex-1">
+                  <p className="text-white">{contact.name}</p>
+                  <p className="text-gray-400 text-sm">{contact.lastMessage}</p>
+                </div>
+                <span className="text-gray-400 text-sm">{contact.time}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-        <div className="mb-4">
-          <input
-            type="text"
-            className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-            placeholder="Set your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button
-            className="mt-2 w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-            onClick={handleSetName}
-          >
-            Set Name
-          </button>
-        </div>
+      {/* Chat Window (Pop-up Style) */}
+      <div className="flex-1 bg-gray-900 p-6">
+        {activeChat ? (
+          <div className="bg-gray-800 p-4 rounded-lg shadow-lg w-full h-full relative">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl text-white">{activeChat.name}</h3>
+              <button
+                className="bg-red-600 text-white px-3 py-1 rounded"
+                onClick={() => setActiveChat(null)}
+              >
+                Close
+              </button>
+            </div>
 
-        <div className="mb-4">
-          <button
-            className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
-            onClick={handleListRooms}
-          >
-            List Rooms
-          </button>
-        </div>
-
-        {chatRooms.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold mb-2">Chat Rooms</h2>
-            <ul>
-              {chatRooms.map((room, index) => (
-                <li key={index} className="mb-2">
-                  <button
-                    className="w-full bg-purple-600 text-white p-2 rounded hover:bg-purple-700"
-                    onClick={() => handleJoinRoom(room)}
-                  >
-                    Join {room}
-                  </button>
-                </li>
+            {/* Messages */}
+            <div className="h-64 overflow-y-scroll bg-gray-700 p-4 rounded">
+              {messages.map((msg, index) => (
+                <div key={index} className="mb-2 text-white">
+                  {msg}
+                </div>
               ))}
-            </ul>
+              <div ref={messageEndRef} />
+            </div>
+
+            {/* Input Box */}
+            <div className="absolute bottom-0 left-0 w-full p-4 bg-gray-700 flex items-center">
+              <input
+                type="text"
+                className="flex-1 p-2 bg-gray-600 border border-gray-500 rounded text-white"
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+              />
+              <button
+                className="ml-2 bg-blue-600 text-white px-4 py-2 rounded"
+                onClick={handleSendMessage}
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full text-white">
+            <p>Select a contact to start chatting!</p>
           </div>
         )}
-
-        <div className="mb-4 h-64 overflow-y-scroll bg-gray-700 p-2 rounded">
-          {messages.map((msg, index) => (
-            <div key={index} className="mb-2">
-              {msg}
-            </div>
-          ))}
-          <div ref={messageEndRef} />
-        </div>
-
-        <div className="flex">
-          <input
-            type="text"
-            className="flex-1 p-2 bg-gray-700 border border-gray-600 rounded text-white"
-            placeholder="Type a message"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-          />
-          <button
-            className="ml-2 bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-            onClick={handleSendMessage}
-          >
-            Send
-          </button>
-        </div>
       </div>
     </div>
   );
