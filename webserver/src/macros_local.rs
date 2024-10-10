@@ -10,10 +10,10 @@
 #[macro_export]
 macro_rules! get_db_connection {
     ($pool:expr) => {{
-        let conn_async = web::block(move || {
-            $pool.clone().get().expect("Failed to get DB connection.")
+        web::block(move || {
+            $pool.clone().get().expect("couldn't get db connection from pool")
         })
-        .await;
-        conn_async.expect("Failed to establish connection")
+        .await
+        .map_err(actix_web::error::ErrorInternalServerError).expect("internal server error")
     }};
 }
