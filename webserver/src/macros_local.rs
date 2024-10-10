@@ -1,4 +1,5 @@
-// let mut conn = pool.get().expect("Failed to get DB connection.");
+// let mut conn = pool.get().expect("Failed to get DB connection."); 
+// line above blocking code
 // let conn_asyc = web::block(move || {
 //         pool.clone().get().expect("Failed to get DB connection.")
 //     })
