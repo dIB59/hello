@@ -27,5 +27,6 @@ jsonwebtoken = "9.3.0"
 thiserror = "1.0"
 actix-service = "2.0.2"
 async-stripe = { version = "0.39.1", features = ["runtime-tokio-hyper"] } 
+mockito = "0.31" 
 
 [dev-dependencies]
