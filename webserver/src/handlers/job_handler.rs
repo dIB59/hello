@@ -1,4 +1,4 @@
-use crate::{ auth::auth_middleware, database::db::DbPool, models::{job::NewJob, user::UserSub}, services::{job_service, user_service::get_user_id_by_email}};
+use crate::{ auth::auth_middleware, database::db::DbPool, get_db_connection, models::{job::NewJob, user::UserSub}, services::{job_service, user_service::get_user_id_by_email}};
 use actix_web::{post, get, web, HttpResponse, Responder};
 use serde::Deserialize;
 
@@ -77,7 +77,7 @@ pub async fn create_job(
     user_sub: UserSub,
     pool: web::Data<DbPool>,
     job_req: web::Json<CreateJobRequest>,)->impl Responder{
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     let user_id = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
     
     let new_job : NewJob = job_req.copy_request(&user_id);
@@ -92,7 +92,7 @@ pub async fn create_job(
 #[get("")]
 pub async fn get_jobs(
     pool: web::Data<DbPool>)->impl Responder{
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
 
     match job_service::get_jobs(&mut conn).await {
         Ok(jobs) => {
@@ -107,7 +107,7 @@ pub async fn get_jobs(
 pub async fn get_my_jobs(
     user_sub: UserSub,
     pool: web::Data<DbPool>)->impl Responder{
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     let user_id = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
 
     match job_service::get_my_jobs(&mut conn, user_id).await {

@@ -3,6 +3,7 @@ use serde::Deserialize;
 
 use crate::auth::auth_middleware;
 use crate::database::db::DbPool;
+use crate::get_db_connection;
 use crate::models::user::UserSub;
 use crate::services::project_service;
 use crate::services::user_service::get_user_id_by_email;
@@ -25,7 +26,7 @@ pub async fn create_project(
     project: web::Json<CreateProjectRequest>,
     user_sub: UserSub,
 ) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     let id: i32 = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
 
     match project_service::create_project(&mut conn, &project.title, &project.description, &id)
@@ -37,7 +38,7 @@ pub async fn create_project(
 
 #[get("")]
 pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     let id: i32 = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
 
     match project_service::get_projects(&mut conn, &id) {
@@ -48,7 +49,7 @@ pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Re
 
 #[get("/{id}")]
 pub async fn get_project(pool: web::Data<DbPool>, id: web::Path<i32>) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     match project_service::get_project_by_id(&mut conn, &id.into_inner()) {
         Ok(project) => HttpResponse::Ok().json(project),
         Err(_) => HttpResponse::InternalServerError().json("Error getting project"),

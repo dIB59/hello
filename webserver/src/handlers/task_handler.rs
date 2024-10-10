@@ -1,6 +1,7 @@
 use actix_web::{get, HttpResponse, post, Responder, web};
 use serde::Deserialize;
 
+use crate::get_db_connection;
 use crate::{auth::auth_middleware, db::DbPool};
 use crate::models::user::UserSub;
 use crate::services::task_service;
@@ -29,7 +30,7 @@ pub async fn create_task(
     pool: web::Data<DbPool>,
     task: web::Json<CreateTaskRequest>,
 ) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     match task_service::create_task(&mut conn, &task.description, task.reward, task.project_id) {
         Ok(task) => HttpResponse::Ok().json(task),
         Err(_) => HttpResponse::InternalServerError().json("Error creating new task"),
@@ -38,7 +39,7 @@ pub async fn create_task(
 
 #[get("")]
 pub async fn get_tasks(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     let users_id = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
     match task_service::get_tasks(&mut conn, &users_id) {
         Ok(tasks) => HttpResponse::Ok().json(tasks),
@@ -48,7 +49,7 @@ pub async fn get_tasks(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Respo
 
 #[get("/{id}")]
 pub async fn get_task_by_id(pool: web::Data<DbPool>, id: web::Path<i32>, user_sub: UserSub) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
+    let mut conn = get_db_connection!(pool);
     let users_id = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
     match task_service::get_task_by_id(&mut conn, id.into_inner(), &users_id) {
         Ok(task) => HttpResponse::Ok().json(task),
