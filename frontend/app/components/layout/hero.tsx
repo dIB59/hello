@@ -17,20 +17,27 @@ const hero = () => {
             </strong>{" "}
             do?
           </h1>
-          <strong className="italic font-semibold">
-            <ul className="list-disc text-xl my-2">
-              <li>Create and manage projects</li>
-              <li> Find the perfect consultant for your project</li>
-              <li>
-                Ensures deliverables are high quality by using advanced
-                blockchain technology
+          <div className="text-xl">
+            <ul className="list-disc pl-5">
+              <li className="italic font-semibold mt-4">
+                Create and manage projects
+                <ul className="ml-6 list-disc">
+                  <li className="italic font-semibold mt-4">
+                    Find the perfect consultant for your work
+                    <ul className="ml-6 list-disc">
+                      <li className="italic font-semibold mt-4">
+                        Ensures deliverables are high quality by using advanced blockchain technology
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
               </li>
             </ul>
-          </strong>
+          </div>
           <span className="text-xl mb-4">
             Read more about our services on our{" "}
             <Link href="/">
-              <strong className="italic">services page</strong>
+              <strong className="italic underline">services page</strong>
             </Link>{" "}
           </span>
         </div>

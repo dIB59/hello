@@ -1,37 +1,54 @@
+import React from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-import React from 'react'
-import Link from 'next/link'
-import Button from './button'
+type CardProps = {
+  cardType: string,
+  rate: number,
+  benefits: string[],
+  link: string,
+};
 
-type Card={
-  cardType:string,
-  rate:number,
-  benefits:string[],
-  link:string,
-}
-
-const card = ({cardType,rate,benefits,link}:Card) => {
+const PricingCard = ({ cardType, rate, benefits, link }: CardProps) => {
   return (
-    <div className='flex flex-col  bg-white w-[307px] h-[372px] rounded-[40px] py-7 gap-3 border-solid border-2 border-black shadow-xl'>
-      <div className='flex flex-col gap-2 items-center py-6'>
-        <div className='flex flex-row justify-between w-[257px]'>
-          <h1 className='text-3xl font-bold items-center'>{cardType}</h1>
-          <h1 className='text-3xl font-bold items-center'>${rate}</h1>
-        </div>
-        <ul className='list-disc px-6 '>
-          
-          {benefits?.map((benefit) => ( //Error was saying that benefits was undefined
-            <li key={benefit}>{benefit}</li> //Check if it exists before rendering it
+    <Card className="w-[307px] h-[372px] rounded-[40px] border-2 border-black shadow-[-5px_5px_10px_rgba(0,0,0,0.1)]">
+      {/* Card Header */}
+      <CardHeader className="text-center">
+        <CardTitle className="flex justify-between items-center w-[257px] mx-auto">
+          <div className="flex flex-row justify-between items-center w-full">
+            <h3 className="text-3xl font-bold">{cardType}</h3>
+            <p className="text-3xl font-bold">${rate}</p> 
+          </div>
+        </CardTitle>
+      </CardHeader>
+
+      {/* Card Content (Benefits) */}
+      <CardContent className="flex flex-col items-center">
+        <ul className="list-disc px-6 space-y-2">
+          {benefits?.map((benefit) => (
+            <li key={benefit} className="italic font-semibold">{benefit}</li>
           ))}
         </ul>
-        <Link className='underline italic text-gray-400' href={link}>Learn more about this</Link>
-      </div>
-      <div className='flex justify-center'>
-      <Button backgroundColor={'#ffd700'} hoverColor={'#181b3b'} text={'Choose a plan'} width={180} hoverwidth={290} height={64}  padding={[18,33]}/>
-      </div>
-            
-    </div>
-  )
-}
 
-export default card
+        {/* Link */}
+        <div className="w-full flex justify-left mt-4">
+          <Link className="underline italic text-gray-400" href={link}>
+            Learn more about this
+          </Link>
+        </div>
+      </CardContent>
+
+      {/* Card Footer (Button) */}
+      <CardFooter className="flex justify-center">
+        <Button
+          className="bg-[#ffd700] hover:bg-[#181b3b] text-black hover:text-white font-bold w-[180px] h-[64px] rounded-full transition-all duration-300"
+        >
+          Choose a plan
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
+export default PricingCard;
