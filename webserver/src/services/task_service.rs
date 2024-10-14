@@ -51,15 +51,15 @@ mod tests {
 
     use super::*;
 
-    #[actix_rt::test]
-    async fn test_create_task_success() {
+    #[test]
+    fn test_create_task_success() {
         let db = TestDb::new();
 
         let description = "test task";
         let reward = 100;
 
         let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .await.expect("Failed to register user")
+            .expect("Failed to register user")
             .id;
 
         let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
@@ -78,15 +78,15 @@ mod tests {
         assert_eq!(created_task.reward, reward);
     }
 
-    #[actix_rt::test]
-    async fn get_tasks_success() {
+    #[test]
+    fn get_tasks_success() {
         let db = TestDb::new();
 
         let description = "test task";
         let reward = 100;
 
         let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .await.expect("Failed to register user")
+            .expect("Failed to register user")
             .id;
 
         let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
@@ -104,15 +104,15 @@ mod tests {
         assert_eq!(created_task.reward, reward);
     }
 
-    #[actix_rt::test]
-    async fn get_task_by_id_success() {
+    #[test]
+    fn get_task_by_id_success() {
         let db = TestDb::new();
 
         let description = "test task";
         let reward = 100;
 
         let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .await.expect("Failed to register user")
+            .expect("Failed to register user")
             .id;
 
         let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)

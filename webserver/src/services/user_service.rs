@@ -4,7 +4,7 @@ use diesel::result::Error;
 use crate::models::user::{NewUser, User};
 use crate::schema::users;
 
-pub async fn register_user(
+pub fn register_user(
     conn: &mut PgConnection,
     username: &str,
     password: &str,
@@ -71,8 +71,8 @@ mod tests {
 
     use super::*;
 
-    #[actix_rt::test]
-    async fn test_register_user_success() {
+    #[test]
+    fn test_register_user_success() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
@@ -80,7 +80,7 @@ mod tests {
         let password = "password123";
         let email = "test@example.com";
 
-        let result = register_user(&mut conn, username, password, email).await;
+        let result = register_user(&mut conn, username, password, email);
         println!("{:?}", result);
         assert!(
             result.is_ok(),
@@ -99,8 +99,8 @@ mod tests {
         );
     }
 
-    #[actix_rt::test]
-    async fn test_register_user_duplicate_username() {
+    #[test]
+    fn test_register_user_duplicate_username() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
@@ -109,7 +109,7 @@ mod tests {
         let email = "test@example.com";
         // First registration should succeed
 
-        let result = register_user(&mut conn, username, password, email).await;
+        let result = register_user(&mut conn, username, password, email);
         println!("{:?}", result);
         assert!(
             result.is_ok(),
@@ -117,23 +117,23 @@ mod tests {
         );
 
         // Second registration with the same username should fail
-        let second_result = register_user(&mut conn, username, password, email).await;
+        let second_result = register_user(&mut conn, username, password, email);
         assert!(
             second_result.is_err(),
             "Second user registration succeeded when it should have failed due to duplicate username"
         );
     }
 
-    #[actix_rt::test]
-    async fn test_password_hashing() {
+    #[test]
+    fn test_password_hashing() {
         let password = "password123";
         let hashed_password = hash_password(password).expect("Failed to hash password");
 
         assert_ne!(password, hashed_password);
     }
 
-    #[actix_rt::test]
-    async fn test_verify_password() {
+    #[test]
+    fn test_verify_password() {
         let password = "password123";
         let hashed_password = hash_password(password).expect("Failed to hash password");
 
