@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::auth::auth_middleware;
 use crate::database::db::DbPool;
-use crate::get_db_connection;
+use crate::get_db_connection_async;
 use crate::models::user::UserSub;
 use crate::services::project_service;
 use crate::services::user_service::get_user_id_by_email;
@@ -26,11 +26,12 @@ pub async fn create_project(
     project: web::Json<CreateProjectRequest>,
     user_sub: UserSub,
 ) -> impl Responder {
-    let mut conn = get_db_connection!(pool);
-    let id: i32 = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
+    let user = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+        let id: i32 = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
+        project_service::create_project(conn, &project.title, &project.description, &id)
+    });
 
-    match project_service::create_project(&mut conn, &project.title, &project.description, &id)
-    {
+    match user {
         Ok(project) => HttpResponse::Ok().json(project),
         Err(_) => HttpResponse::InternalServerError().json("Error creating new project"),
     }
@@ -38,10 +39,12 @@ pub async fn create_project(
 
 #[get("")]
 pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Responder {
-    let mut conn = get_db_connection!(pool);
-    let id: i32 = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
-
-    match project_service::get_projects(&mut conn, &id) {
+    let user = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+        let id: i32 = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
+        project_service::get_projects(conn, &id)
+    });
+    
+    match user {
         Ok(projects) => HttpResponse::Ok().json(projects),
         Err(_) => HttpResponse::InternalServerError().json("Error getting projects"),
     }
@@ -49,8 +52,10 @@ pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Re
 
 #[get("/{id}")]
 pub async fn get_project(pool: web::Data<DbPool>, id: web::Path<i32>) -> impl Responder {
-    let mut conn = get_db_connection!(pool);
-    match project_service::get_project_by_id(&mut conn, &id.into_inner()) {
+    let user = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+        project_service::get_project_by_id(conn, &id.into_inner())
+    });
+    match user {
         Ok(project) => HttpResponse::Ok().json(project),
         Err(_) => HttpResponse::InternalServerError().json("Error getting project"),
     }
