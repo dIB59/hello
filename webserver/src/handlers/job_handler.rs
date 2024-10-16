@@ -33,7 +33,43 @@ pub struct CreateJobRequest {
     pub candidate_recommendations : bool,
     pub job_screening_questions : Option<Vec<String>>,
 }
-
+/*impl From<(&i32, CreateJobRequest)> for NewJob {
+    fn from(value: (&i32, CreateJobRequest)) -> Self {
+        let request = &value.1;
+        let user_id = value.0;
+        NewJob {
+            user_id,
+            job_title: &request.job_title,
+            company_name: &request.company_name,
+            company_logo: request.company_logo.as_deref(),
+            company_location: &request.company_location,
+            company_ranking: &request.company_ranking,
+            employment_type: &request.employment_type,
+            time_schedule: &request.time_schedule,
+            workplace_type: &request.workplace_type,
+            department: &request.department,
+            job_description: &request.job_description,
+            responsibilities: &request.responsibilities,
+            qualifications: &request.qualifications,
+            required_skills: &request.required_skills,
+            preferred_skills: &request.preferred_skills,
+            experience_level: &request.experience_level,
+            min_salary: &request.min_salary,
+            max_salary: &request.max_salary,
+            comp_structure: &request.comp_structure,
+            currency: &request.currency,
+            benefits_and_perks: &request.benefits_and_perks,
+            work_hours_flexible: request.work_hours_flexible,
+            apply_through_platform: request.apply_through_platform,
+            external_url: request.external_url.as_deref(),
+            email: request.email.as_deref(),
+            audience_type: &request.audience_type,
+            target_candidates: &request.target_candidates,
+            candidate_recommendations: request.candidate_recommendations,
+            jobs_screening_questions: request.job_screening_questions.as_deref(),
+        }
+    }
+}*/
 // helper method to borrow 'job' parameters from the incoming request into a NewJob struct
 impl CreateJobRequest{
     fn copy_request<'a>(&'a self, logged_user_id : &'a i32)->NewJob<'a>{
