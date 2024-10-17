@@ -20,7 +20,6 @@ pub fn create_task(
         .values(&new_task)
         .returning(Task::as_returning())
         .get_result(conn);
-    log::info!("{:?}", some);
     return some;
 }
 
@@ -50,6 +49,28 @@ mod tests {
     use crate::services::user_service::register_user;
 
     use super::*;
+
+    #[actix_rt::test]
+    async fn create_task_wrong_project_id() {
+        let db = TestDb::new();
+
+        let description = "test task";
+        let reward = 100;
+
+        let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
+            .await.expect("Failed to register user")
+            .id;
+
+        let result = create_task(&mut db.conn(), description, reward, 1);
+
+        assert!(
+            result.is_err(),
+            "Task creation succeeded when it should have failed"
+        );
+
+        println!("{:?}", result);
+    }
+
 
     #[actix_rt::test]
     async fn test_create_task_success() {
