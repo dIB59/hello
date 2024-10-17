@@ -26,3 +26,22 @@ impl ResponseError for ApiError {
         }
     }
 }
+
+impl From<DatabaseError> for diesel::result::Error {
+    fn from(error: DatabaseError) -> Self {
+        // diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UnableToSendCommand, Box::new(error.to_string()))
+        diesel::result::Error::NotFound
+    }
+}
+
+impl From<DatabaseError> for AuthError {
+    fn from(value: DatabaseError) -> Self {
+        AuthError::InvalidCredentials
+    }
+}
+
+impl From<actix_web::Error> for ApiError {
+    fn from(value: actix_web::Error) -> Self {
+        ApiError::AuthorizationError(AuthError::InvalidCredentials)
+    }
+}

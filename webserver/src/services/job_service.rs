@@ -3,7 +3,7 @@ use crate::schema::{self, jobs};
 use diesel::prelude::*;
 use diesel::result::Error;
 
-pub async fn create_job<'a>(
+pub fn create_job<'a>(
     conn: &mut PgConnection,
     new_job: & NewJob<'a>,
 ) -> Result<Job, Error> {
@@ -16,12 +16,12 @@ pub async fn create_job<'a>(
     return some;
 }
 
-pub(crate) async fn get_jobs(conn: &mut PgConnection) -> Result<Vec<Job>, Error> {
+pub(crate) fn get_jobs(conn: &mut PgConnection) -> Result<Vec<Job>, Error> {
     let jobs = jobs::table.load::<Job>(conn);
     return jobs;
 }
 
-pub(crate) async fn get_my_jobs(conn: &mut PgConnection, user_id : i32) -> Result<Vec<Job>, Error> {
+pub(crate) fn get_my_jobs(conn: &mut PgConnection, user_id : i32) -> Result<Vec<Job>, Error> {
     let jobs = jobs::table
                                         .filter(schema::jobs::user_id.eq(user_id))
                                         .load::<Job>(conn);
@@ -117,12 +117,12 @@ mod tests {
         job
     }
 
-    #[actix_rt::test]
-    async fn test_create_job_success() {
+    #[test]
+    fn test_create_job_success() {
         let db = TestDb::new();
         
         let user_id = register_user(&mut db.conn(), "test job", "testpassword", "test@test.com")
-        .await.expect("Failed to register user")
+        .expect("Failed to register user")
         .id;
 
         let required_skills_vec = &vec!["tall".to_string()];
@@ -133,8 +133,7 @@ mod tests {
                                             preferred_skills_vec,
                                             jobs_screening_vec);
         
-        let result = create_job(&mut db.conn(), &new_job)
-            .await;
+        let result = create_job(&mut db.conn(), &new_job);
 
         assert!(
             result.is_ok(),
@@ -145,12 +144,12 @@ mod tests {
         assert_eq!(created_job, new_job);
     }
      
-    #[actix_rt::test]
-    async fn get_jobs_success() {
+    #[test]
+    fn get_jobs_success() {
         let db = TestDb::new();
         
         let user_id = register_user(&mut db.conn(), "test job", "testpassword", "test@test.com")
-        .await.expect("Failed to register user")
+        .expect("Failed to register user")
         .id;
 
         let required_skills_vec = &vec!["tall".to_string()];
@@ -161,10 +160,9 @@ mod tests {
                                             preferred_skills_vec,
                                             jobs_screening_vec);
         
-        create_job(&mut db.conn(), &new_job).await.expect("Job creation failed when it should have succeeded");
+        create_job(&mut db.conn(), &new_job).expect("Job creation failed when it should have succeeded");
         
-        let stored_jobs_result = get_jobs(&mut db.conn())
-            .await;
+        let stored_jobs_result = get_jobs(&mut db.conn());
         assert!(
             stored_jobs_result.is_ok(),
             "Job retrieval failed when it should have succeeded"

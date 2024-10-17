@@ -62,8 +62,8 @@ mod tests {
 
     use super::*;
 
-    #[actix_rt::test]
-    async fn test_create_project() {
+    #[test]
+    fn test_create_project() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
@@ -71,7 +71,7 @@ mod tests {
         let description = "Test Project Description";
 
         let user = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .await.expect("Failed to register user");
+            .expect("Failed to register user");
 
         let result = create_project(&mut conn, title, description, &user.id);
         println!("{:?}", result);
@@ -86,15 +86,15 @@ mod tests {
         assert_eq!(project.user_id, user.id);
     }
 
-    #[actix_rt::test]
-    async fn test_get_projects() {
+    #[test]
+    fn test_get_projects() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
         let title = "Test Project";
         let description = "Test Project Description";
         let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .await.expect("Failed to register user").id;
+            .expect("Failed to register user").id;
 
 
         let result = create_project(&mut conn, title, description, &user_id);
@@ -109,15 +109,15 @@ mod tests {
         assert!(projects.contains(&project));
     }
 
-    #[actix_rt::test]
-    async fn test_get_project_by_id() {
+    #[test]
+    fn test_get_project_by_id() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
         let title = "Test Project";
         let description = "Test Project Description";
         let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .await.expect("Failed to register user").id;
+            .expect("Failed to register user").id;
 
         let result = create_project(&mut conn, title, description, &user_id);
         println!("{:?}", result);
@@ -133,15 +133,15 @@ mod tests {
         assert_eq!(project_by_id.user_id, user_id);
     }
 
-    #[actix_rt::test]
-    async fn test_get_project_with_tasks() {
+    #[test]
+    fn test_get_project_with_tasks() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
         let title = "Test Project";
         let description = "Test Project Description";
         let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .await.expect("Failed to register user").id;
+            .expect("Failed to register user").id;
 
         let project_id = create_project(&mut conn, title, description, &user_id)
             .expect("Failed to create project")
