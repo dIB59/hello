@@ -15,10 +15,11 @@ macro_rules! get_db_connection_async {
         use crate::database::error::DatabaseError;
         use actix_web::error::ErrorInternalServerError;
         web::block(move || {
-            let mut conn = $pool.get().map_err(DatabaseError::from).expect("Failed to get DB connection.");
+            let mut conn = $pool.get().map_err(DatabaseError::from)?;
             $query(&mut conn)
         })
         .await
+        // .map_err(ErrorInternalServerError)?
         .map_err(ErrorInternalServerError).expect("internal server error")
     }};
 }
