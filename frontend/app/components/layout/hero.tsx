@@ -12,7 +12,7 @@ const hero = () => {
         <div className="flex flex-col w-full gap-4 px-2 lg:px-0 ">
           <h1 className="text-4xl">
             What does{" "}
-            <strong className="bg-gradient-to-r from-[#2A2D4B] to-[#FFD700] bg-clip-text text-transparent font-body font-bold">
+            <strong className="bg-gradient-to-r from-darkblue to-gold bg-clip-text text-transparent font-body font-bold">
               FlowerWork
             </strong>{" "}
             do?
@@ -59,7 +59,7 @@ const hero = () => {
         />
         <div className="flex flex-col justify-center gap-4 lg:w-full text-right">
           <span className="text-3xl font-bold font-body">
-            <strong className="bg-gradient-to-r from-[#2A2D4B] to-[#FFD700] bg-clip-text text-transparent font-bold">
+            <strong className="bg-gradient-to-r from-darkblue to-gold bg-clip-text text-transparent font-bold">
               FlowerWork
             </strong>{" "}
             cutting edge <br className="hidden lg:block" />
@@ -95,7 +95,7 @@ const hero = () => {
         </div>
         <div className="flex flex-col lg:order-1 gap-4 w-full justify-center font-body ">
           <span className="text-3xl ">
-            <span className="bg-gradient-to-r from-[#2A2D4B] to-[#FFD700] bg-clip-text text-transparent font-bold">
+            <span className="bg-gradient-to-r from-darkblue to-gold bg-clip-text text-transparent font-bold">
               FlowerWork
             </span>{" "}
             is at the top in the field,{" "}
@@ -125,7 +125,7 @@ const hero = () => {
         <div className="flex flex-col gap-4 text-right w-full">
           <h1 className="text-4xl text-black">
             The squad making it all possible{" "}
-            <span className="bg-gradient-to-r from-[#2A2D4B] to-[#FFD700] bg-clip-text text-transparent font-bold">
+            <span className="bg-gradient-to-r from-darkblue to-gold bg-clip-text text-transparent font-bold">
               FlowerWork
             </span>
           </h1>

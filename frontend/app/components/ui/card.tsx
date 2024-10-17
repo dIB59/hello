@@ -12,7 +12,7 @@ type CardProps = {
 
 const PricingCard = ({ cardType, rate, benefits, link }: CardProps) => {
   return (
-    <Card className="w-[307px] h-[372px] rounded-[40px] border-2 border-black shadow-[-5px_5px_10px_rgba(0,0,0,0.1)]">
+    <Card className="w-[307px] h-[372px] rounded-[40px] border-2 border-black shadow-custom">
       {/* Card Header */}
       <CardHeader className="text-center">
         <CardTitle className="flex justify-between items-center w-[257px] mx-auto">
@@ -42,7 +42,7 @@ const PricingCard = ({ cardType, rate, benefits, link }: CardProps) => {
       {/* Card Footer (Button) */}
       <CardFooter className="flex justify-center">
         <Button
-          className="bg-[#ffd700] hover:bg-[#181b3b] text-black hover:text-white font-bold w-[180px] h-[64px] rounded-full transition-all duration-300"
+          className="bg-gold hover:bg-[#181b3b] text-black hover:text-white font-bold w-[180px] h-[64px] rounded-full transition-all duration-300"
         >
           Choose a plan
         </Button>

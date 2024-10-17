@@ -6,9 +6,9 @@ const login = () => {
     <div className="flex flex-col sm:w-full md:w-9/12 lg:w-8/12 rounded-3xl py-10 px-3 border-2 border-black items-center">
       <div className="flex flex-col gap-5 py-6 items-center">
         <div className="flex flex-col">
-          <span className="text-[34px] font-body bg-gradient-to-r from-[#2A2D4B] to-[#FFD700] bg-clip-text text-transparent font-bold">
+          <span className="text-[34px] font-body bg-gradient-to-r from-darkblue to-gold bg-clip-text text-transparent font-bold">
             Welcome back,
-          <span className="text-[34px] font-body bg-gradient-to-r from-[#2A2D4B] to-[#FFD700] bg-clip-text text-transparent font-bold">
+          <span className="text-[34px] font-body bg-gradient-to-r from-darkblue to-gold bg-clip-text text-transparent font-bold">
             {" "}superstar!
           </span>
           </span>
@@ -25,7 +25,7 @@ const login = () => {
                 name="email"
                 id="email"
                 required
-                className="border-[2px] rounded-[20px] border-[#2A2D4B] h-12 px-2 lg:h-[65px]"
+                className="border-[2px] rounded-[20px] border-darkblue h-12 px-2 lg:h-[65px]"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -35,7 +35,7 @@ const login = () => {
                 name="password"
                 id="password"
                 required
-                className="border-[2px] rounded-[20px] border-[#2A2D4B] h-12 px-2 lg:h-[65px]"
+                className="border-[2px] rounded-[20px] border-darkblue h-12 px-2 lg:h-[65px]"
               />
               <Link className="underline italic" href="#">Forget your password?</Link>
             </div>

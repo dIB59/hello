@@ -12,7 +12,7 @@ import { CircleUser } from "lucide-react";
 const Navbar = () => {
   return (
     <div className="w-full h-[92px] gap-2 lg:py-2">
-      <div className="flex w-full h-[72px] justify-between items-center bg-[#2A2D4B] lg:rounded-xl lg:px-2">
+      <div className="flex w-full h-[72px] justify-between items-center bg-darkblue lg:rounded-xl lg:px-2">
         <Image className="w-[69px] h-[72px]" src={logo} alt="logo" />
 
         {/* Navigation Menu */}
@@ -20,7 +20,7 @@ const Navbar = () => {
           <NavigationMenuList className="flex gap-4">
             {/* Log in Button with User Icon */}
             <NavigationMenuItem>
-              <Button className="bg-transparent text-white border border-white w-[219px] h-[61px] rounded-full hover:bg-[rgb(255,215,0)] hover:text-black hover:border-black font-bold">
+              <Button className="bg-transparent text-white border border-white w-[219px] h-[61px] rounded-full hover:bg-gold hover:text-black hover:border-black font-bold">
                 <CircleUser className="mr-2 h-8 w-8" /> 
                 Log in
               </Button>
@@ -28,7 +28,7 @@ const Navbar = () => {
 
             {/* Sign up Button */}
             <NavigationMenuItem>
-              <Button className="bg-transparent text-white border border-white w-[219px] h-[61px] rounded-full hover:bg-[rgb(255,215,0)] hover:text-black hover:border-black font-bold">
+              <Button className="bg-transparent text-white border border-white w-[219px] h-[61px] rounded-full hover:bg-gold hover:text-black hover:border-black font-bold">
                 Sign up
               </Button>
             </NavigationMenuItem>
