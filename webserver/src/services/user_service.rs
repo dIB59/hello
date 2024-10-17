@@ -1,7 +1,8 @@
-use crate::models::user::{NewUser, User};
-use crate::schema::users;
 use diesel::prelude::*;
 use diesel::result::Error;
+
+use crate::models::user::{NewUser, User};
+use crate::schema::users;
 
 pub async fn register_user(
     conn: &mut PgConnection,
@@ -25,25 +26,32 @@ pub async fn register_user(
 }
 
 pub(crate) fn get_user_by_id(user_id: i32, conn: &mut PgConnection) -> Result<User, Error> {
-    users::table
-        .filter(users::id.eq(user_id))
-        .first::<User>(conn)
+    users::table.find(user_id).first(conn)
 }
 
-pub async fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
-    let user = users::table
+pub(crate) fn get_user_by_email(email: &str, conn: &mut PgConnection) -> Result<User, Error> {
+    users::table.filter(users::email.eq(email)).first(conn)
+}
+
+pub(crate) fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Result<i32, Error> {
+    users::table
         .filter(users::email.eq(email))
-        .first::<User>(conn);
+        .select(users::id)
+        .first(conn)
+}
+
+pub fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
+    let user = get_user_by_email(email, conn);
 
     match user {
         Ok(user) => {
             let is_password_correct = verify_password(&user.password_hash, password)
                 .expect("Password verification failed");
-            if is_password_correct {
-                return Ok(user);
+            return if is_password_correct {
+                Ok(user)
             } else {
-                return Err(Error::NotFound);
-            }
+                Err(Error::NotFound)
+            };
         }
         Err(error) => Err(error),
     }

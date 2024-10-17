@@ -9,10 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
     "sharp": "^0.33.5"
+=======
+    "@aws-sdk/client-s3": "^3.651.1",
+    "next": "14.2.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "server-only": "^0.0.1"
+>>>>>>> 264446f825efa01f7820171d6881ca7632f3a65a
   },
   "devDependencies": {
     "@types/node": "^20",
