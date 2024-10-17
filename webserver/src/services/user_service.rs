@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use diesel::result::Error;
+use crate::auth::error::AuthError;
 
 use crate::models::user::{NewUser, User};
 use crate::schema::users;
@@ -40,20 +41,12 @@ pub(crate) fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Resu
         .first(conn)
 }
 
-pub fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
+pub fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, AuthError> {
     let user = get_user_by_email(email, conn);
 
     match user {
-        Ok(user) => {
-            let is_password_correct = verify_password(&user.password_hash, password)
-                .expect("Password verification failed");
-            return if is_password_correct {
-                Ok(user)
-            } else {
-                Err(Error::NotFound)
-            };
-        }
-        Err(error) => Err(error),
+        Ok(user) if verify_password(&user.password_hash, password).unwrap_or(false) => Ok(user),
+        _ => Err(AuthError::InvalidCredentials),
     }
 }
 
@@ -101,6 +94,7 @@ mod tests {
 
     #[test]
     fn test_register_user_duplicate_username() {
+
         let db = TestDb::new();
         let mut conn = db.conn();
 

@@ -1,9 +1,11 @@
-use actix_web::{get, HttpResponse, post, Responder, web};
+use actix_web::{get, HttpResponse, post, Responder, ResponseError, web};
 use serde::Deserialize;
 
 use crate::auth::auth_middleware;
 use crate::database::db::DbPool;
 use crate::get_db_connection_async;
+use crate::database::error::DatabaseError;
+use crate::handlers::error::ApiError;
 use crate::models::user::UserSub;
 use crate::services::project_service;
 use crate::services::user_service::get_user_id_by_email;
@@ -25,29 +27,24 @@ pub async fn create_project(
     pool: web::Data<DbPool>,
     project: web::Json<CreateProjectRequest>,
     user_sub: UserSub,
-) -> impl Responder {
-    let user = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
-        let id: i32 = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
+) -> Result<impl Responder, impl ResponseError> {
+    let created_project = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+        let id: i32 = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;
         project_service::create_project(conn, &project.title, &project.description, &id)
-    });
+        .map_err(DatabaseError::from)
+    })?;
 
-    match user {
-        Ok(project) => HttpResponse::Ok().json(project),
-        Err(_) => HttpResponse::InternalServerError().json("Error creating new project"),
-    }
+    Ok::<HttpResponse, ApiError>(HttpResponse::Created().json(created_project))
 }
 
 #[get("")]
-pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> impl Responder {
-    let user = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
-        let id: i32 = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
-        project_service::get_projects(conn, &id)
-    });
+pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> Result<impl Responder, impl ResponseError> {
+    let projects = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+        let id: i32 = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;
+        project_service::get_projects(conn, &id).map_err(DatabaseError::from)
+    })?;
     
-    match user {
-        Ok(projects) => HttpResponse::Ok().json(projects),
-        Err(_) => HttpResponse::InternalServerError().json("Error getting projects"),
-    }
+    Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(projects))
 }
 
 #[get("/{id}")]

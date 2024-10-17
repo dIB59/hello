@@ -12,11 +12,13 @@
 #[macro_export]
 macro_rules! get_db_connection_async {
     ($pool:expr,$query:expr) => {{
+        use crate::database::error::DatabaseError;
+        use actix_web::error::ErrorInternalServerError;
         web::block(move || {
-            let mut conn = $pool.clone().get().expect("couldn't get db connection from pool");
+            let mut conn = $pool.get().map_err(DatabaseError::from).expect("Failed to get DB connection.");
             $query(&mut conn)
         })
         .await
-        .map_err(actix_web::error::ErrorInternalServerError).expect("internal server error")
+        .map_err(ErrorInternalServerError).expect("internal server error")
     }};
 }

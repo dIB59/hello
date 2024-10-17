@@ -20,7 +20,6 @@ pub fn create_task(
         .values(&new_task)
         .returning(Task::as_returning())
         .get_result(conn);
-    log::info!("{:?}", some);
     return some;
 }
 
@@ -52,7 +51,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_create_task_success() {
+    fn create_task_wrong_project_id() {
         let db = TestDb::new();
 
         let description = "test task";
@@ -62,20 +61,14 @@ mod tests {
             .expect("Failed to register user")
             .id;
 
-        let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
-            .expect("Failed to create project")
-            .id;
-
-        let result = create_task(&mut db.conn(), description, reward, project_id);
+        let result = create_task(&mut db.conn(), description, reward, 1);
 
         assert!(
-            result.is_ok(),
-            "Task creation failed when it should have succeeded"
+            result.is_err(),
+            "Task creation succeeded when it should have failed"
         );
 
-        let created_task = result.unwrap();
-        assert_eq!(created_task.description, description);
-        assert_eq!(created_task.reward, reward);
+        println!("{:?}", result);
     }
 
     #[test]
