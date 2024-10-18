@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::auth::auth_middleware;
 use crate::database::db::DbPool;
-use crate::get_db_connection_async;
+use crate::run_async_query;
 use crate::database::error::DatabaseError;
 use crate::handlers::error::ApiError;
 use crate::models::user::UserSub;
@@ -28,7 +28,7 @@ pub async fn create_project(
     project: web::Json<CreateProjectRequest>,
     user_sub: UserSub,
 ) -> Result<impl Responder, impl ResponseError> {
-    let created_project = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+    let created_project = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         let id: i32 = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;
         project_service::create_project(conn, &project.title, &project.description, &id)
         .map_err(DatabaseError::from)
@@ -39,7 +39,7 @@ pub async fn create_project(
 
 #[get("")]
 pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> Result<impl Responder, impl ResponseError> {
-    let projects = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+    let projects = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         let id: i32 = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;
         project_service::get_projects(conn, &id).map_err(DatabaseError::from)
     })?;
@@ -49,7 +49,7 @@ pub async fn get_projects(pool: web::Data<DbPool>, user_sub: UserSub) -> Result<
 
 #[get("/{id}")]
 pub async fn get_project(pool: web::Data<DbPool>, id: web::Path<i32>) -> impl Responder {
-    let user = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+    let user = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         project_service::get_project_by_id(conn, &id.into_inner())
     });
     match user {

@@ -8,9 +8,9 @@
 //     .await;
 // let mut conn = conn_asyc.expect("Failed to establish connection");
 // replaces the above code with the following
-// let mut conn = get_db_connection_async!(pool);
+// let mut conn = run_async_query!(pool);
 #[macro_export]
-macro_rules! get_db_connection_async {
+macro_rules! run_async_query {
     ($pool:expr,$query:expr) => {{
         use crate::database::error::DatabaseError;
         use actix_web::error::ErrorInternalServerError;

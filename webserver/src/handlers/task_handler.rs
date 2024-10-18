@@ -2,7 +2,7 @@ use actix_web::{get, HttpResponse, post, Responder, ResponseError, web};
 
 use serde::{Deserialize, Serialize};
 
-use crate::get_db_connection_async;
+use crate::run_async_query;
 use crate::{auth::auth_middleware, db::DbPool};
 use crate::database::error::DatabaseError;
 use crate::handlers::error::ApiError;
@@ -34,7 +34,7 @@ pub async fn create_task(
     pool: web::Data<DbPool>,
     task: web::Json<CreateTaskRequest>,
 ) -> Result<impl Responder, impl ResponseError> {
-    let create_task = get_db_connection_async!(pool,|conn| {
+    let create_task = run_async_query!(pool,|conn| {
         task_service::create_task(conn, &task.description, task.reward, task.project_id)
         .map_err(DatabaseError::from)
     })?;
@@ -44,7 +44,7 @@ pub async fn create_task(
 #[get("")]
 pub async fn get_tasks(pool: web::Data<DbPool>, user_sub: UserSub) -> Result<impl Responder, impl ResponseError> {
 
-    let ta = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+    let ta = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         // First, get the user ID by email
         let users_id = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;        
         // Then, retrieve tasks using the user ID
@@ -55,7 +55,7 @@ pub async fn get_tasks(pool: web::Data<DbPool>, user_sub: UserSub) -> Result<imp
 
 #[get("/{id}")]
 pub async fn get_task_by_id(pool: web::Data<DbPool>, id: web::Path<i32>, user_sub: UserSub) -> Result<impl Responder, impl ResponseError> {
-    let task = get_db_connection_async!(pool, |conn: &mut diesel::PgConnection| {
+    let task = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         let users_id = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;
         task_service::get_task_by_id(conn, id.into_inner(), &users_id).map_err(DatabaseError::from)
     })?;

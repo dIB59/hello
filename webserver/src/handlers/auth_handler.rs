@@ -7,7 +7,7 @@ use crate::database::error::DatabaseError;
 use crate::handlers::auth_handler;
 use crate::handlers::error::ApiError;
 use crate::models::user::UserResponse;
-use crate::get_db_connection_async;
+use crate::run_async_query;
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginRequest {
@@ -28,7 +28,7 @@ pub async fn login(
     credentials: web::Json<LoginRequest>,
 
 ) -> Result<impl Responder, impl ResponseError> {
-    let user = get_db_connection_async!(pool,|conn| {user_service::login(conn, &credentials.email, &credentials.password)
+    let user = run_async_query!(pool,|conn| {user_service::login(conn, &credentials.email, &credentials.password)
         .map_err(AuthError::from)})?;
     let bearer_token = create_jwt(&user.email);
     let public_user: UserResponse = user.into();
@@ -45,7 +45,7 @@ pub async fn register(
     pool: web::Data<DbPool>,
     credentials: web::Json<RegisterRequest>,
 ) -> impl Responder {
-    let user = get_db_connection_async!(pool, |conn| user_service::register_user(
+    let user = run_async_query!(pool, |conn| user_service::register_user(
         conn,
         &credentials.username,
         &credentials.password,
