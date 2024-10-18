@@ -2,6 +2,7 @@ use actix_web::{get, HttpResponse, post, Responder, ResponseError, web};
 
 use serde::{Deserialize, Serialize};
 
+use crate::run_async_query;
 use crate::{auth::auth_middleware, db::DbPool};
 use crate::database::error::DatabaseError;
 use crate::handlers::error::ApiError;
@@ -33,33 +34,33 @@ pub async fn create_task(
     pool: web::Data<DbPool>,
     task: web::Json<CreateTaskRequest>,
 ) -> Result<impl Responder, impl ResponseError> {
-    let mut conn = pool.get().map_err(DatabaseError::from)?;
-
-    let create_task = task_service::create_task(&mut conn, &task.description, task.reward, task.project_id)
-        .map_err(DatabaseError::from)?;
+    let create_task = run_async_query!(pool,|conn| {
+        task_service::create_task(conn, &task.description, task.reward, task.project_id)
+        .map_err(DatabaseError::from)
+    })?;
     Ok::<HttpResponse, ApiError>(HttpResponse::Created().json(create_task))
 }
 
 #[get("")]
 pub async fn get_tasks(pool: web::Data<DbPool>, user_sub: UserSub) -> Result<impl Responder, impl ResponseError> {
-    let mut conn = pool.get().map_err(DatabaseError::from)?;
-    let users_id = get_user_id_by_email(&user_sub.0, &mut conn).map_err(DatabaseError::from)?;
-    let ta = task_service::get_tasks(&mut conn, &users_id).map_err(DatabaseError::from)?;
 
+    let ta = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
+        // First, get the user ID by email
+        let users_id = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;        
+        // Then, retrieve tasks using the user ID
+        task_service::get_tasks(conn, &users_id).map_err(DatabaseError::from)
+    })?;
     Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(ta))
 }
 
 #[get("/{id}")]
 pub async fn get_task_by_id(pool: web::Data<DbPool>, id: web::Path<i32>, user_sub: UserSub) -> Result<impl Responder, impl ResponseError> {
-    let mut conn = pool.get().map_err(DatabaseError::from)?;
-    let users_id = get_user_id_by_email(&user_sub.0, &mut conn).map_err(DatabaseError::from)?;
-    let task=  task_service::get_task_by_id(&mut conn, id.into_inner(), &users_id).map_err(DatabaseError::from)?;
-
+    let task = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
+        let users_id = get_user_id_by_email(&user_sub.0, conn).map_err(DatabaseError::from)?;
+        task_service::get_task_by_id(conn, id.into_inner(), &users_id).map_err(DatabaseError::from)
+    })?;
     Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(task))
 }
-
-//TODO
-//Trying to add a task to a project that does not exist should return a 404 error or bad request
 
 #[cfg(test)]
 mod tests {
@@ -91,7 +92,7 @@ mod tests {
         let reward = 100;
 
         let user = register_user(&mut db.conn(), "test user", "testpassword", "test@email.com")
-            .await.expect("Failed to register user");
+            .expect("Failed to register user");
 
         let log_req = test::TestRequest::post()
             .uri("/auth/login")
@@ -141,7 +142,7 @@ mod tests {
         let description = "test task";
         let reward = 100;
 
-        let user = register_user(&mut db.conn(), "test user", "testpassword", "test@email.com").await.expect("Failed to register user");
+        let user = register_user(&mut db.conn(), "test user", "testpassword", "test@email.com").expect("Failed to register user");
         let project = create_project(&mut db.conn(), "test project", "test project description", &user.id).expect("Failed to create project");
 
         println!("User: {:?}", user);
