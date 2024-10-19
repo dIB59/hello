@@ -29,7 +29,11 @@ pub(crate) fn get_tasks(conn: &mut PgConnection, users_id: &i32) -> Result<Vec<T
         .load(conn)
 }
 
-pub(crate) fn get_task_by_id(conn: &mut PgConnection, task_id: i32, user: &i32) -> Result<Task, Error> {
+pub(crate) fn get_task_by_id(
+    conn: &mut PgConnection,
+    task_id: i32,
+    user: &i32,
+) -> Result<Task, Error> {
     //make sure the task is within user project
     let user_project = crate::schema::projects::table
         .filter(crate::schema::projects::user_id.eq(user))
@@ -57,9 +61,14 @@ mod tests {
         let description = "test task";
         let reward = 100;
 
-        let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .expect("Failed to register user")
-            .id;
+        let user_id = register_user(
+            &mut db.conn(),
+            "test project",
+            "testpassword",
+            "test@test.com",
+        )
+        .expect("Failed to register user")
+        .id;
 
         let result = create_task(&mut db.conn(), description, reward, 1);
 
@@ -78,9 +87,14 @@ mod tests {
         let description = "test task";
         let reward = 100;
 
-        let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .expect("Failed to register user")
-            .id;
+        let user_id = register_user(
+            &mut db.conn(),
+            "test project",
+            "testpassword",
+            "test@test.com",
+        )
+        .expect("Failed to register user")
+        .id;
 
         let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
             .expect("Failed to create project")
@@ -104,9 +118,14 @@ mod tests {
         let description = "test task";
         let reward = 100;
 
-        let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .expect("Failed to register user")
-            .id;
+        let user_id = register_user(
+            &mut db.conn(),
+            "test project",
+            "testpassword",
+            "test@test.com",
+        )
+        .expect("Failed to register user")
+        .id;
 
         let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
             .expect("Failed to create project")

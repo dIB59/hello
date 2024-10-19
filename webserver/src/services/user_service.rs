@@ -1,6 +1,6 @@
+use crate::auth::error::AuthError;
 use diesel::prelude::*;
 use diesel::result::Error;
-use crate::auth::error::AuthError;
 
 use crate::models::user::{NewUser, User};
 use crate::schema::users;
@@ -94,7 +94,6 @@ mod tests {
 
     #[test]
     fn test_register_user_duplicate_username() {
-
         let db = TestDb::new();
         let mut conn = db.conn();
 

@@ -1,7 +1,7 @@
-use actix_web::ResponseError;
-use thiserror::Error;
 use crate::auth::error::AuthError;
 use crate::database::error::DatabaseError;
+use actix_web::ResponseError;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ApiError {

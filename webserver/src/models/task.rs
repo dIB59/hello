@@ -5,14 +5,7 @@ use crate::models::project::Project;
 use crate::schema::tasks;
 
 #[derive(
-    Queryable,
-    Selectable,
-    Serialize,
-    Deserialize,
-    Debug,
-    Associations,
-    Identifiable,
-    PartialEq
+    Queryable, Selectable, Serialize, Deserialize, Debug, Associations, Identifiable, PartialEq,
 )]
 #[diesel(table_name = tasks)]
 #[belongs_to(Project)]
@@ -24,7 +17,6 @@ pub struct Task {
     pub completed: bool,
     pub user_id: Option<i32>,
     pub project_id: i32,
-
 }
 
 pub struct TaskResponse {

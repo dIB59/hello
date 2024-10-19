@@ -73,9 +73,4 @@ diesel::joinable!(projects -> users (user_id));
 diesel::joinable!(tasks -> projects (project_id));
 diesel::joinable!(tasks -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    jobs,
-    projects,
-    tasks,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(jobs, projects, tasks, users,);
