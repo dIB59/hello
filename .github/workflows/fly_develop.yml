@@ -1,0 +1,29 @@
+name: Start staging preview app
+
+on:
+  push:
+    paths:
+      - "webserver/**"
+      - ".github/workflows/fly_develop.yml"
+    branches:
+      - develop
+
+concurrency:
+  group: ${{ github.workflow }}-pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+jobs:
+  deploy-app:
+    #if: contains(github.event.pull_request.labels.*.name, 'PR preview app')
+    name: Deploy to develop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: cd webserver && flyctl deploy --app webserver-flowerwork-develop --remote-only --config fly-develop.toml

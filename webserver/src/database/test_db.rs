@@ -1,11 +1,13 @@
 // disable the dead code warning
 #![allow(dead_code)]
+
+use std::env;
+use std::sync::atomic::{AtomicU32, Ordering};
+
 use diesel::backend::Backend;
 use diesel::{sql_query, Connection, PgConnection, RunQueryDsl};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use log::warn;
-use std::env;
-use std::sync::atomic::{AtomicU32, Ordering};
 
 static TEST_DB_COUNTER: AtomicU32 = AtomicU32::new(0);
 const TEST_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
