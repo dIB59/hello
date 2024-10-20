@@ -5,7 +5,7 @@ use crate::auth::auth_middleware;
 use crate::database::db::DbPool;
 use crate::database::error::DatabaseError;
 use crate::handlers::error::ApiError;
-use crate::models::user::{UserResponse, UserSub};
+use crate::models::user::UserSub;
 use crate::run_async_query;
 use crate::services::project_service;
 use crate::services::user_service::get_user_id_by_email;
