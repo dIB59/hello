@@ -45,23 +45,16 @@ pub async fn login(
 pub async fn register(
     pool: web::Data<DbPool>,
     credentials: web::Json<RegisterRequest>,
-) -> impl Responder {
+) -> Result<impl Responder, impl ResponseError> {
     let user = run_async_query!(pool, |conn| user_service::register_user(
         conn,
         &credentials.username,
         &credentials.password,
         &credentials.email,
-    ));
-    match user {
-        Ok(user) => {
-            let public_user: UserResponse = user.into();
-            HttpResponse::Created().json(public_user)
-        }
-        Err(error) => {
-            log::error!("Failed to create new User: {:?}", error);
-            HttpResponse::InternalServerError().json("Error creating new User")
-        }
-    }
+    ).map_err(DatabaseError::from))?;
+
+    let public_user: UserResponse = user.into();
+    Ok::<HttpResponse, ApiError>(HttpResponse::Created().json(public_user))
 }
 
 pub fn auth_routes(cfg: &mut web::ServiceConfig) {
