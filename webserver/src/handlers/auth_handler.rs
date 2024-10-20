@@ -51,7 +51,8 @@ pub async fn register(
         &credentials.username,
         &credentials.password,
         &credentials.email,
-    ).map_err(DatabaseError::from))?;
+    )
+    .map_err(DatabaseError::from))?;
 
     let public_user: UserResponse = user.into();
     Ok::<HttpResponse, ApiError>(HttpResponse::Created().json(public_user))

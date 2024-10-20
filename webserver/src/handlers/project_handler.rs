@@ -53,7 +53,10 @@ pub async fn get_projects(
 }
 
 #[get("/{id}")]
-pub async fn get_project(pool: web::Data<DbPool>, id: web::Path<i32>) -> Result<impl Responder, impl ResponseError> {
+pub async fn get_project(
+    pool: web::Data<DbPool>,
+    id: web::Path<i32>,
+) -> Result<impl Responder, impl ResponseError> {
     let user = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         project_service::get_project_by_id(conn, &id.into_inner()).map_err(DatabaseError::from)
     })?;

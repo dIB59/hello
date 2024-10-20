@@ -1,4 +1,11 @@
-use crate::{ auth::auth_middleware, database::db::DbPool, handlers::error::ApiError, models::{job::NewJob, user::UserSub}, run_async_query, services::{job_service, user_service::get_user_id_by_email}};
+use crate::{
+    auth::auth_middleware,
+    database::db::DbPool,
+    handlers::error::ApiError,
+    models::{job::NewJob, user::UserSub},
+    run_async_query,
+    services::{job_service, user_service::get_user_id_by_email},
+};
 use actix_web::{get, post, web, HttpResponse, Responder, ResponseError};
 use serde::Deserialize;
 
@@ -112,7 +119,8 @@ impl CreateJobRequest {
 pub async fn create_job(
     user_sub: UserSub,
     pool: web::Data<DbPool>,
-    job_req: web::Json<CreateJobRequest>,)-> Result<impl Responder, impl ResponseError> {
+    job_req: web::Json<CreateJobRequest>,
+) -> Result<impl Responder, impl ResponseError> {
     // let user = web::block(move || {
     //             let mut conn = pool.clone().get().expect("Failed to get DB connection.");
     //             let user_id = get_user_id_by_email(&user_sub.0, &mut conn).expect("Failed to get user id");
@@ -123,26 +131,27 @@ pub async fn create_job(
     //         .map_err(actix_web::error::ErrorInternalServerError).expect("internal server error");
     let user = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         let user_id = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
-        let new_job : NewJob = job_req.copy_request(&user_id);
+        let new_job: NewJob = job_req.copy_request(&user_id);
         job_service::create_job(conn, &new_job).map_err(DatabaseError::from)
     })?;
     Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(user))
 }
 
 #[get("")]
-pub async fn get_jobs(
-    pool: web::Data<DbPool>)-> Result<impl Responder, impl ResponseError> {
-    let user = run_async_query!(pool,|conn| {job_service::get_jobs(conn).map_err(DatabaseError::from)})?;
+pub async fn get_jobs(pool: web::Data<DbPool>) -> Result<impl Responder, impl ResponseError> {
+    let user = run_async_query!(pool, |conn| {
+        job_service::get_jobs(conn).map_err(DatabaseError::from)
+    })?;
 
     Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(user))
-
 }
 
 #[get("/mine")]
 pub async fn get_my_jobs(
     user_sub: UserSub,
-    pool: web::Data<DbPool>)-> Result<impl Responder, impl ResponseError> {
-    let user = run_async_query!(pool,|conn: &mut diesel::PgConnection| {
+    pool: web::Data<DbPool>,
+) -> Result<impl Responder, impl ResponseError> {
+    let user = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         let user_id = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
         job_service::get_my_jobs(conn, user_id).map_err(DatabaseError::from)
     })?;

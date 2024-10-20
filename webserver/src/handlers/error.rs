@@ -27,7 +27,6 @@ impl ResponseError for ApiError {
     }
 }
 
-
 impl From<DatabaseError> for AuthError {
     fn from(value: DatabaseError) -> Self {
         AuthError::InvalidCredentials
