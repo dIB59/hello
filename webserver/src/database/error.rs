@@ -1,9 +1,9 @@
-use std::fmt::{Display, Formatter};
-use actix_web::{HttpResponse, ResponseError};
 use actix_web::http::StatusCode;
+use actix_web::{HttpResponse, ResponseError};
 use diesel::r2d2;
-use thiserror::Error;
 use diesel::result::Error as DieselError;
+use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum DatabaseError {
@@ -25,7 +25,7 @@ impl ResponseError for DatabaseError {
             DatabaseError::DieselError(ref err) => match &err {
                 DieselError::DatabaseError(_, _) => StatusCode::CONFLICT,
                 _ => StatusCode::INTERNAL_SERVER_ERROR,
-            }
+            },
         }
     }
 

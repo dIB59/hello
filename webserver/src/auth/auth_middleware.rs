@@ -1,5 +1,5 @@
 use std::{
-    future::{Future, ready, Ready},
+    future::{ready, Future, Ready},
     pin::Pin,
 };
 

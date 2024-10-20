@@ -2,7 +2,7 @@
 // line above blocking code
 // let conn_asyc = web::block(move || {
 //         pool.clone().get().expect("Failed to get DB connection.")
-//         your variable =  anything 
+//         your variable =  anything
 //         your_query(&mut conn, anything)
 //     })
 //     .await;
@@ -32,6 +32,7 @@ macro_rules! run_async_query {
         })
         .await
         // .map_err(ErrorInternalServerError)?
-        .map_err(ErrorInternalServerError).expect("internal server error")
+        .map_err(ErrorInternalServerError)
+        .expect("internal server error")
     }};
 }

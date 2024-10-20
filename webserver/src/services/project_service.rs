@@ -1,9 +1,11 @@
-use diesel::{ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper};
 use diesel::result::Error;
+use diesel::{
+    ExpressionMethods, PgConnection, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper,
+};
 
-use crate::{models::project::NewProject, schema, schema::projects};
 use crate::models::project::Project;
 use crate::models::task::Task;
+use crate::{models::project::NewProject, schema, schema::projects};
 
 pub fn create_project(
     conn: &mut PgConnection,
@@ -32,14 +34,11 @@ pub fn get_projects(conn: &mut PgConnection, user: &i32) -> Result<Vec<Project>,
     return projects;
 }
 
-
 fn get_project_with_tasks(
     conn: &mut PgConnection,
     project_id: &i32,
 ) -> QueryResult<(Project, Vec<Task>)> {
-    let project = projects::table
-        .find(project_id)
-        .first::<Project>(conn)?;
+    let project = projects::table.find(project_id).first::<Project>(conn)?;
 
     let project_tasks = schema::tasks::table
         .filter(schema::tasks::project_id.eq(project_id))
@@ -49,9 +48,7 @@ fn get_project_with_tasks(
 }
 
 pub fn get_project_by_id(conn: &mut PgConnection, project_id: &i32) -> Result<Project, Error> {
-    let project = projects::table
-        .find(project_id)
-        .get_result(conn);
+    let project = projects::table.find(project_id).get_result(conn);
     return project;
 }
 
@@ -94,8 +91,8 @@ mod tests {
         let title = "Test Project";
         let description = "Test Project Description";
         let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .expect("Failed to register user").id;
-
+            .expect("Failed to register user")
+            .id;
 
         let result = create_project(&mut conn, title, description, &user_id);
         println!("{:?}", result);
@@ -117,7 +114,8 @@ mod tests {
         let title = "Test Project";
         let description = "Test Project Description";
         let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .expect("Failed to register user").id;
+            .expect("Failed to register user")
+            .id;
 
         let result = create_project(&mut conn, title, description, &user_id);
         println!("{:?}", result);
@@ -141,19 +139,22 @@ mod tests {
         let title = "Test Project";
         let description = "Test Project Description";
         let user_id = register_user(&mut conn, "testuser", "password123", "test@example.com")
-            .expect("Failed to register user").id;
+            .expect("Failed to register user")
+            .id;
 
         let project_id = create_project(&mut conn, title, description, &user_id)
             .expect("Failed to create project")
             .id;
-        let (project_new, tasks_new) = get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
+        let (project_new, tasks_new) =
+            get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
         assert_eq!(project_new.id, project_id);
         assert_eq!(tasks_new.len(), 0);
 
         let task_1 = create_task(&mut conn, "test task 1", 100, project_id);
         let task_2 = create_task(&mut conn, "test task 2", 200, project_id);
 
-        let (project, tasks) = get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
+        let (project, tasks) =
+            get_project_with_tasks(&mut conn, &project_id).expect("Failed to get project");
         assert_eq!(tasks.len(), 2);
     }
 }
