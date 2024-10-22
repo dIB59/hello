@@ -1,9 +1,5 @@
 use crate::{
-    auth::auth_middleware,
-    database::db::DbPool,
-    models::{job::NewJob, user::UserSub},
-    run_async_query,
-    services::{job_service, user_service::get_user_id_by_email},
+    auth::auth_middleware, database::db::DbPool, handlers::search_handler::search_jobs, models::{job::NewJob, user::UserSub}, run_async_query, run_async_typesense_query, search::state::SearchState, services::{job_service, search_service::insert_single_doc, user_service::get_user_id_by_email}
 };
 use actix_web::{get, post, web, HttpResponse, Responder};
 use serde::Deserialize;
@@ -119,6 +115,7 @@ pub async fn create_job(
     user_sub: UserSub,
     pool: web::Data<DbPool>,
     job_req: web::Json<CreateJobRequest>,
+    search_state: web::Data<SearchState>,
 ) -> impl Responder {
     // let user = web::block(move || {
     //             let mut conn = pool.clone().get().expect("Failed to get DB connection.");
@@ -133,9 +130,16 @@ pub async fn create_job(
         let new_job: NewJob = job_req.copy_request(&user_id);
         job_service::create_job(conn, &new_job)
     });
-    match user {
-        Ok(job) => HttpResponse::Ok().json(job),
-        Err(_) => HttpResponse::InternalServerError().json("Error creating new job"),
+    
+    let url = format!("{}/collections/jobs/documents", search_state.typesense_url);
+    let typesense_job = serde_json::json!(user.as_ref().expect("job creation failed"));
+    let result = run_async_typesense_query!(
+        &search_state, insert_single_doc, url, typesense_job
+    );
+    
+    match (user, result) {
+        (Ok(job), Ok(_)) => HttpResponse::Ok().json(job),
+        _ => return HttpResponse::InternalServerError().json("Error creating new job"),
     }
 }
 
@@ -168,6 +172,7 @@ pub fn job_routes_auth(cfg: &mut web::ServiceConfig) {
             .wrap(auth_middleware::Auth)
             .service(get_jobs)
             .service(create_job)
-            .service(get_my_jobs),
+            .service(get_my_jobs)
+            .service(search_jobs),
     );
 }

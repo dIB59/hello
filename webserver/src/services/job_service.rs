@@ -4,12 +4,10 @@ use diesel::prelude::*;
 use diesel::result::Error;
 
 pub fn create_job<'a>(conn: &mut PgConnection, new_job: &NewJob<'a>) -> Result<Job, Error> {
-    println!("{:?}", new_job);
     let some = diesel::insert_into(jobs::table)
         .values(new_job)
         .returning(Job::as_returning())
         .get_result(conn);
-    log::info!("{:?}", some);
     return some;
 }
 

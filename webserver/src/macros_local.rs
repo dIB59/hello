@@ -36,3 +36,19 @@ macro_rules! run_async_query {
         .expect("internal server error")
     }};
 }
+
+#[macro_export]
+macro_rules! run_async_typesense_query {
+    ($search_state:expr, $query:expr, $url:expr, $user:expr) => {{
+        use reqwest::Error;
+        use actix_web::error::ErrorInternalServerError;
+
+        web::block(move || {
+            let response = $query(&$search_state,  $url, $user).map_err(Error::from);
+            response
+        })
+        .await
+        .map_err(ErrorInternalServerError)
+        .expect("internal server error")
+    }};
+}
