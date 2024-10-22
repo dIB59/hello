@@ -31,8 +31,7 @@ macro_rules! run_async_query {
             $query(&mut conn)
         })
         .await
-        // .map_err(ErrorInternalServerError)?
-        .map_err(ErrorInternalServerError)
-        .expect("internal server error")
+        .map_err(ErrorInternalServerError)?
+        // .map_err(ErrorInternalServerError).expect("internal server error")
     }};
 }
