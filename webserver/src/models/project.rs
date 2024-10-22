@@ -1,11 +1,10 @@
+use crate::models::user::User;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::Serialize;
-use crate::models::user::User;
 
 #[derive(
     Associations, Identifiable, Selectable, Queryable, Debug, PartialEq, Eq, Clone, Serialize,
-
 )]
 #[diesel(belongs_to(User))]
 #[diesel(table_name = crate::schema::projects)]
@@ -15,7 +14,6 @@ pub struct Project {
     pub title: String,
     pub description: String,
     pub created_at: NaiveDateTime,
-
 }
 
 #[derive(Serialize)]

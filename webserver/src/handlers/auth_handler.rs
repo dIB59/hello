@@ -1,12 +1,13 @@
-use actix_web::{HttpResponse, post, Responder, ResponseError, web};
+use actix_web::{post, web, HttpResponse, Responder, ResponseError};
 use serde::{Deserialize, Serialize};
 
-use crate::{auth::jwt_auth_service::create_jwt, database::db::DbPool, services::user_service};
 use crate::auth::error::AuthError;
 use crate::database::error::DatabaseError;
 use crate::handlers::auth_handler;
 use crate::handlers::error::ApiError;
 use crate::models::user::UserResponse;
+use crate::run_async_query;
+use crate::{auth::jwt_auth_service::create_jwt, database::db::DbPool, services::user_service};
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginRequest {
@@ -25,20 +26,18 @@ pub struct RegisterRequest {
 pub async fn login(
     pool: web::Data<DbPool>,
     credentials: web::Json<LoginRequest>,
-) -> Result<impl Responder, impl ResponseError>
-{
-    let mut conn = pool.get().map_err(DatabaseError::from)?;
-
-    let user = user_service::login(&mut conn, &credentials.email, &credentials.password)
-        .map_err(AuthError::from)?;
-
+) -> Result<impl Responder, impl ResponseError> {
+    let user = run_async_query!(pool, |conn| {
+        user_service::login(conn, &credentials.email, &credentials.password)
+            .map_err(AuthError::from)
+    })?;
     let bearer_token = create_jwt(&user.email);
     let public_user: UserResponse = user.into();
 
     Ok::<HttpResponse, ApiError>(
         HttpResponse::Ok()
-        .append_header(("Authorization", format!("Bearer {}", bearer_token)))
-        .json(public_user)
+            .append_header(("Authorization", format!("Bearer {}", bearer_token)))
+            .json(public_user),
     )
 }
 
@@ -47,15 +46,13 @@ pub async fn register(
     pool: web::Data<DbPool>,
     credentials: web::Json<RegisterRequest>,
 ) -> impl Responder {
-    let mut conn = pool.get().expect("Failed to get DB connection.");
-    match user_service::register_user(
-        &mut conn,
+    let user = run_async_query!(pool, |conn| user_service::register_user(
+        conn,
         &credentials.username,
         &credentials.password,
         &credentials.email,
-    )
-        .await
-    {
+    ));
+    match user {
         Ok(user) => {
             let public_user: UserResponse = user.into();
             HttpResponse::Created().json(public_user)
@@ -67,19 +64,15 @@ pub async fn register(
     }
 }
 
-
 pub fn auth_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/auth")
-        .service(login)
-        .service(register));
+    cfg.service(web::scope("/auth").service(login).service(register));
 }
 
-
 mod tests {
-    use actix_web::{App, test};
     use crate::database::db;
     use crate::database::test_db::TestDb;
     use crate::services::user_service::register_user;
+    use actix_web::{test, App};
 
     use super::*;
 
@@ -93,8 +86,9 @@ mod tests {
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(pool.clone()))
-                .configure(auth_routes)
-        ).await;
+                .configure(auth_routes),
+        )
+        .await;
 
         let register_request = RegisterRequest {
             username: "test".to_string(),
@@ -136,8 +130,9 @@ mod tests {
         let app = test::init_service(
             App::new()
                 .app_data(web::Data::new(pool.clone()))
-                .configure(auth_routes)
-        ).await;
+                .configure(auth_routes),
+        )
+        .await;
 
         let register_request = RegisterRequest {
             username: "test".to_string(),
