@@ -1,18 +1,19 @@
-use actix_web::web;
+use actix_web::{web,HttpResponse};
 
 use job_handler::job_routes_auth;
 use task_handler::task_routes;
 use user_handler::user_routes;
-
 use crate::auth::auth_middleware;
 use crate::chat::chat_handler;
 use crate::handlers::auth_handler::auth_routes;
 use crate::handlers::project_handler::project_routes;
 use crate::routes::health_handler::health_routes;
+use crate::handlers::stripe_handler::payment_routes;
 use crate::{
     chat::{chat_routes::chat_route_auth, get_count},
     handlers::*,
 };
+
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -24,6 +25,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .configure(chat_route_auth)
             .configure(job_routes_auth)
             .configure(health_routes)
+            .configure(payment_routes)
             .route("/count", web::get().to(get_count)),
     );
     cfg.service(
@@ -32,3 +34,4 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .route("/chat", web::get().to(chat_handler)),
     );
 }
+
