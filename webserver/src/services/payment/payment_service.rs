@@ -23,13 +23,26 @@ pub enum PaymentStatus {
 
 #[async_trait]
 pub trait PaymentService {
-    type PaymentIntent;  // Abstract over PaymentIntent type
-    type Status;         // Abstract over Status type
+    type PaymentIntent; // Abstract over PaymentIntent type
+    type Status; // Abstract over Status type
 
-    async fn create_payment_intent(&self, amount: i64, currency: &str) -> Result<Self::PaymentIntent, PaymentError>;
-    async fn confirm_payment_intent(&self, payment_intent_id: &str) -> Result<Self::PaymentIntent, PaymentError>;
-    async fn check_payment_status(&self, payment_intent_id: &str) -> Result<Self::Status, PaymentError>;
-    async fn charge_payment(&self, payment_intent_id: &str) -> Result<Self::PaymentIntent, PaymentError>;
+    async fn create_payment_intent(
+        &self,
+        amount: i64,
+        currency: &str,
+    ) -> Result<Self::PaymentIntent, PaymentError>;
+    async fn confirm_payment_intent(
+        &self,
+        payment_intent_id: &str,
+    ) -> Result<Self::PaymentIntent, PaymentError>;
+    async fn check_payment_status(
+        &self,
+        payment_intent_id: &str,
+    ) -> Result<Self::Status, PaymentError>;
+    async fn charge_payment(
+        &self,
+        payment_intent_id: &str,
+    ) -> Result<Self::PaymentIntent, PaymentError>;
 }
 
 pub enum PaymentMethod {
