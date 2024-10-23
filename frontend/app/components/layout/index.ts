@@ -1,0 +1,5 @@
+export {default as Navbar} from './navbar'
+export {default as Welcome} from './welcome'
+export {default as Hero} from './hero'
+export {default as CardSection} from './cardSection'
+export {default as Footer} from './footer'

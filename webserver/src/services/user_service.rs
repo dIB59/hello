@@ -1,10 +1,11 @@
+use crate::auth::error::AuthError;
 use diesel::prelude::*;
 use diesel::result::Error;
 
 use crate::models::user::{NewUser, User};
 use crate::schema::users;
 
-pub async fn register_user(
+pub fn register_user(
     conn: &mut PgConnection,
     username: &str,
     password: &str,
@@ -40,20 +41,12 @@ pub(crate) fn get_user_id_by_email(email: &str, conn: &mut PgConnection) -> Resu
         .first(conn)
 }
 
-pub fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, Error> {
+pub fn login(conn: &mut PgConnection, email: &str, password: &str) -> Result<User, AuthError> {
     let user = get_user_by_email(email, conn);
 
     match user {
-        Ok(user) => {
-            let is_password_correct = verify_password(&user.password_hash, password)
-                .expect("Password verification failed");
-            return if is_password_correct {
-                Ok(user)
-            } else {
-                Err(Error::NotFound)
-            };
-        }
-        Err(error) => Err(error),
+        Ok(user) if verify_password(&user.password_hash, password).unwrap_or(false) => Ok(user),
+        _ => Err(AuthError::InvalidCredentials),
     }
 }
 
@@ -71,8 +64,8 @@ mod tests {
 
     use super::*;
 
-    #[actix_rt::test]
-    async fn test_register_user_success() {
+    #[test]
+    fn test_register_user_success() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
@@ -80,7 +73,7 @@ mod tests {
         let password = "password123";
         let email = "test@example.com";
 
-        let result = register_user(&mut conn, username, password, email).await;
+        let result = register_user(&mut conn, username, password, email);
         println!("{:?}", result);
         assert!(
             result.is_ok(),
@@ -99,8 +92,8 @@ mod tests {
         );
     }
 
-    #[actix_rt::test]
-    async fn test_register_user_duplicate_username() {
+    #[test]
+    fn test_register_user_duplicate_username() {
         let db = TestDb::new();
         let mut conn = db.conn();
 
@@ -109,7 +102,7 @@ mod tests {
         let email = "test@example.com";
         // First registration should succeed
 
-        let result = register_user(&mut conn, username, password, email).await;
+        let result = register_user(&mut conn, username, password, email);
         println!("{:?}", result);
         assert!(
             result.is_ok(),
@@ -117,23 +110,23 @@ mod tests {
         );
 
         // Second registration with the same username should fail
-        let second_result = register_user(&mut conn, username, password, email).await;
+        let second_result = register_user(&mut conn, username, password, email);
         assert!(
             second_result.is_err(),
             "Second user registration succeeded when it should have failed due to duplicate username"
         );
     }
 
-    #[actix_rt::test]
-    async fn test_password_hashing() {
+    #[test]
+    fn test_password_hashing() {
         let password = "password123";
         let hashed_password = hash_password(password).expect("Failed to hash password");
 
         assert_ne!(password, hashed_password);
     }
 
-    #[actix_rt::test]
-    async fn test_verify_password() {
+    #[test]
+    fn test_verify_password() {
         let password = "password123";
         let hashed_password = hash_password(password).expect("Failed to hash password");
 

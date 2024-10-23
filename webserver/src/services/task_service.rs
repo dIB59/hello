@@ -20,17 +20,28 @@ pub fn create_task(
         .values(&new_task)
         .returning(Task::as_returning())
         .get_result(conn);
-    log::info!("{:?}", some);
     return some;
 }
 
-pub(crate) fn get_tasks(conn: &mut PgConnection) -> Result<Vec<Task>, Error> {
-    tasks::table.load(conn)
+pub(crate) fn get_tasks(conn: &mut PgConnection, users_id: &i32) -> Result<Vec<Task>, Error> {
+    crate::schema::tasks::table
+        .filter(tasks::user_id.eq(users_id))
+        .load(conn)
 }
 
-pub(crate) fn get_task_by_id(conn: &mut PgConnection, task_id: i32) -> Result<Task, Error> {
-    use crate::schema::tasks::dsl::*;
-    let task = tasks.filter(id.eq(task_id))
+pub(crate) fn get_task_by_id(
+    conn: &mut PgConnection,
+    task_id: i32,
+    user: &i32,
+) -> Result<Task, Error> {
+    //make sure the task is within user project
+    let user_project = crate::schema::projects::table
+        .filter(crate::schema::projects::user_id.eq(user))
+        .first::<crate::models::project::Project>(conn)?;
+
+    let task: Task = crate::schema::tasks::table
+        .filter(crate::schema::tasks::project_id.eq(user_project.id))
+        .find(task_id)
         .first::<Task>(conn)?;
     Ok(task)
 }
@@ -43,23 +54,84 @@ mod tests {
 
     use super::*;
 
-    #[actix_rt::test]
-    async fn test_create_task_success() {
+    #[test]
+    fn create_task_wrong_project_id() {
         let db = TestDb::new();
 
         let description = "test task";
         let reward = 100;
 
-        let user_id = register_user(&mut db.conn(), "test project", "testpassword", "test@test.com")
-            .await.expect("Failed to register user")
-            .id;
+        let user_id = register_user(
+            &mut db.conn(),
+            "test project",
+            "testpassword",
+            "test@test.com",
+        )
+        .expect("Failed to register user")
+        .id;
+
+        let result = create_task(&mut db.conn(), description, reward, 1);
+
+        assert!(
+            result.is_err(),
+            "Task creation succeeded when it should have failed"
+        );
+
+        println!("{:?}", result);
+    }
+
+    #[test]
+    fn get_tasks_success() {
+        let db = TestDb::new();
+
+        let description = "test task";
+        let reward = 100;
+
+        let user_id = register_user(
+            &mut db.conn(),
+            "test project",
+            "testpassword",
+            "test@test.com",
+        )
+        .expect("Failed to register user")
+        .id;
 
         let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
             .expect("Failed to create project")
             .id;
 
         let result = create_task(&mut db.conn(), description, reward, project_id);
+        assert!(
+            result.is_ok(),
+            "Task creation failed when it should have succeeded"
+        );
 
+        let created_task = result.unwrap();
+        assert_eq!(created_task.description, description);
+        assert_eq!(created_task.reward, reward);
+    }
+
+    #[test]
+    fn get_task_by_id_success() {
+        let db = TestDb::new();
+
+        let description = "test task";
+        let reward = 100;
+
+        let user_id = register_user(
+            &mut db.conn(),
+            "test project",
+            "testpassword",
+            "test@test.com",
+        )
+        .expect("Failed to register user")
+        .id;
+
+        let project_id = create_project(&mut db.conn(), "test project", "100", &user_id)
+            .expect("Failed to create project")
+            .id;
+
+        let result = create_task(&mut db.conn(), description, reward, project_id);
         assert!(
             result.is_ok(),
             "Task creation failed when it should have succeeded"

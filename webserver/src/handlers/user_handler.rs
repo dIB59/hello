@@ -1,4 +1,4 @@
-use actix_web::{get, HttpResponse, Responder, web};
+use actix_web::{get, web, HttpResponse, Responder};
 use serde_json::json;
 
 use crate::auth::auth_middleware;
@@ -10,9 +10,5 @@ async fn me(user_sub: UserSub) -> impl Responder {
 }
 
 pub fn user_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/users")
-            .wrap(auth_middleware::Auth)
-            .service(me),
-    );
+    cfg.service(web::scope("/users").wrap(auth_middleware::Auth).service(me));
 }

@@ -1,8 +1,7 @@
 use std::future::{ready, Ready};
 
 use actix_web::{
-    dev::{Payload, Service, Transform}
-    ,
+    dev::{Payload, Service, Transform},
     Error, FromRequest, HttpMessage, HttpRequest,
 };
 
@@ -13,14 +12,14 @@ impl FromRequest for UserSub {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let binding = req
-            .extensions();
-        let user_sub = binding
-            .get::<UserSub>();
+        let binding = req.extensions();
+        let user_sub = binding.get::<UserSub>();
 
         match user_sub {
             Some(user_sub) => ready(Ok(user_sub.to_owned())),
-            None => ready(Err(Error::from(actix_web::error::ErrorBadRequest("No user sub found")))),
+            None => ready(Err(Error::from(actix_web::error::ErrorBadRequest(
+                "No user sub found",
+            )))),
         }
     }
 }

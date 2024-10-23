@@ -4,6 +4,11 @@
 use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 
+use diesel::backend::Backend;
+use diesel::{sql_query, Connection, PgConnection, RunQueryDsl};
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+use log::warn;
+
 use diesel::{Connection, PgConnection, RunQueryDsl, sql_query};
 use diesel::backend::Backend;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
