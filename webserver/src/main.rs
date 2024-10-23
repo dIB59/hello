@@ -27,7 +27,6 @@ mod models;
 mod routes;
 mod schema;
 mod services;
-mod extractors;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

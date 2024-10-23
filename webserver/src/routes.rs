@@ -13,10 +13,6 @@ use crate::{
     chat::{chat_routes::chat_route_auth, get_count},
     handlers::*,
 };
-use crate::auth::auth_middleware;
-use crate::chat::chat_handler;
-use crate::handlers::project_handler::project_routes;
-use crate::routes::health_handler::health_routes;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(
