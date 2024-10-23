@@ -141,5 +141,4 @@ mod tests {
         assert_eq!(created_task.description, description);
         assert_eq!(created_task.reward, reward);
     }
-
 }

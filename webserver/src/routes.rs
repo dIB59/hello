@@ -32,5 +32,3 @@ pub fn init(cfg: &mut web::ServiceConfig) {
             .route("/chat", web::get().to(chat_handler)),
     );
 }
-
-
