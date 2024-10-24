@@ -1,7 +1,7 @@
 use crate::{
-    auth::auth_middleware, database::db::DbPool, handlers::search_handler::search_jobs, models::{job::NewJob, user::UserSub}, run_async_query, run_async_typesense_query, search::state::SearchState, services::{job_service, search_service::insert_single_doc, user_service::get_user_id_by_email}
+    auth::auth_middleware, database::db::DbPool, handlers::error::ApiError, models::{job::NewJob, user::UserSub}, run_async_query, run_async_typesense_query, search::state::SearchState, services::{job_service, search_service::insert_single_doc, user_service::get_user_id_by_email}, handlers::search_handler::search_jobs
 };
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder, ResponseError};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -144,26 +144,24 @@ pub async fn create_job(
 }
 
 #[get("")]
-pub async fn get_jobs(pool: web::Data<DbPool>) -> impl Responder {
-    let user = run_async_query!(pool, |conn| { job_service::get_jobs(conn) });
+pub async fn get_jobs(pool: web::Data<DbPool>) -> Result<impl Responder, impl ResponseError> {
+    let user = run_async_query!(pool, |conn| {
+        job_service::get_jobs(conn).map_err(DatabaseError::from)
+    })?;
 
-    match user {
-        Ok(jobs) => HttpResponse::Ok().json(jobs),
-        Err(_) => return HttpResponse::InternalServerError().json("Error getting jobs"),
-    }
+    Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(user))
 }
 
 #[get("/mine")]
-pub async fn get_my_jobs(user_sub: UserSub, pool: web::Data<DbPool>) -> impl Responder {
+pub async fn get_my_jobs(
+    user_sub: UserSub,
+    pool: web::Data<DbPool>,
+) -> Result<impl Responder, impl ResponseError> {
     let user = run_async_query!(pool, |conn: &mut diesel::PgConnection| {
         let user_id = get_user_id_by_email(&user_sub.0, conn).expect("Failed to get user id");
-        job_service::get_my_jobs(conn, user_id)
-    });
-
-    match user {
-        Ok(jobs) => HttpResponse::Ok().json(jobs),
-        Err(_) => return HttpResponse::InternalServerError().json("Error getting jobs"),
-    }
+        job_service::get_my_jobs(conn, user_id).map_err(DatabaseError::from)
+    })?;
+    Ok::<HttpResponse, ApiError>(HttpResponse::Ok().json(user))
 }
 
 pub fn job_routes_auth(cfg: &mut web::ServiceConfig) {
